@@ -27,7 +27,7 @@
                     <t t-esc="message"/>
                 </p>
                 <t t-call="web.layout">
-                    <script src="//g.alicdn.com/dingtalk/dinglogin/0.0.5/ddLogin.js"></script>
+                    <script src="//g.alicdn.com/dingding/dinglogin/0.0.5/ddLogin.js"></script>
                     <script type="text/javascript" src="/dingtalk_login/static/src/js/dingtalk_login.js"></script>
                 </t>
                 <div class="text-center oe_login_buttons pt-3">
