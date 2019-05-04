@@ -152,7 +152,7 @@ class DingtalkApproversUsers(models.Model):
     _rec_name = 'emp_id'
 
     number = fields.Integer(string=u'序号')
-    sequence = fields.Integer(string=u'序号')
+    sequence = fields.Integer(string=u'序列')
     emp_id = fields.Many2one(comodel_name='hr.employee', string=u'审批人', required=True)
     mobile_phone = fields.Char(string='电话')
     job_title = fields.Char(string='职位')
@@ -176,7 +176,7 @@ class DingtalkApproversCc(models.Model):
     _rec_name = 'emp_id'
 
     number = fields.Integer(string=u'序号')
-    sequence = fields.Integer(string=u'序号')
+    sequence = fields.Integer(string=u'序列')
     emp_id = fields.Many2one(comodel_name='hr.employee', string=u'抄送人', required=True)
     mobile_phone = fields.Char(string='电话')
     job_title = fields.Char(string='职位')

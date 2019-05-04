@@ -20,7 +20,7 @@ class DingtalkSimpleGroups(models.Model):
     _name = 'dingtalk.simple.groups'
     _description = '考勤组'
 
-    name = fields.Char(string='名称')
+    name = fields.Char(string='考勤组名称')
     group_id = fields.Char(string='钉钉考勤组ID')
 
     s_type = fields.Selection(string=u'考勤类型',
@@ -84,6 +84,7 @@ class DingtalkSimpleGroups(models.Model):
         获取考勤组成员
         :return:
         """
+        self.get_simple_groups()  #获取考勤组成员前先更新考勤组
         emps = self.env['hr.employee'].sudo().search([('din_id', '!=', '')])
         url = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'a_getusergroup')]).value
         headers = {'Content-Type': 'application/json'}
@@ -104,7 +105,8 @@ class DingtalkSimpleGroups(models.Model):
                         self._cr.execute(
                             """UPDATE hr_employee SET din_group_id = {} WHERE id = {}""".format(groups[0].id, emp.id))
                     else:
-                        return {'state': False, 'msg': '考勤组有更新,请先拉取最新的考勤组!'}
+                        pass
+                        # return {'state': False, 'msg': '考勤组有更新,请先拉取最新的考勤组!'}
                 else:
                     return {'state': False, 'msg': '请求失败,原因为:{}'.format(result.get('errmsg'))}
             except ReadTimeout:
