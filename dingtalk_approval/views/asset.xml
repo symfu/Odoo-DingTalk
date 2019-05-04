@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="dingtalk_approval_template" name="Dingtalk Approval Template" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <script type="text/javascript" src="/dingtalk_approval/static/src/js/approval_template.js"></script>
+        </xpath>
+    </template>
+
+</odoo>

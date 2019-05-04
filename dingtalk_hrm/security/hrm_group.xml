@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+	<data>
+		<record model="ir.module.category" id="dingtalk_hrm.hrm_main">
+			<field name="name">阿里钉钉-智能人事</field>
+			<field name="visible" eval="0" />
+		</record>
+
+		<record id="dingtalk_hrm.personnel" model="res.groups">
+			<field name="name">用户</field>
+			<field name="category_id" ref="dingtalk_hrm.hrm_main"/>
+		</record>
+
+		<record id="dingtalk_hrm.manager" model="res.groups">
+			<field name="name">管理员</field>
+			<field name="category_id" ref="dingtalk_hrm.hrm_main"/>
+			<field name="implied_ids" eval="[(4, ref('dingtalk_hrm.personnel'))]"/>
+		</record>
+
+		<!-- 默认用户权限 -->
+		<record id="base.default_user" model="res.users">
+			<field name="groups_id" eval="[(4, ref('dingtalk_hrm.personnel'))]" />
+		</record>
+
+	</data>
+</odoo>

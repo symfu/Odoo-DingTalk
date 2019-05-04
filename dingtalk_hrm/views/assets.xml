@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="dingtalk_hrm_template" name="Dingtalk Hrm Template" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <script type="text/javascript" src="/dingtalk_hrm/static/src/js/get_hrm_list.js"></script>
+            <script type="text/javascript" src="/dingtalk_hrm/static/src/js/get_hrm_dimission_list.js"></script>
+            <script type="text/javascript" src="/dingtalk_hrm/static/src/js/add_employee.js"></script>
+        </xpath>
+    </template>
+
+</odoo>

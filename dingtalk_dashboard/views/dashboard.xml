@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="dingtalk_dashboard_client" model="ir.actions.client">
+        <field name="name">仪表盘</field>
+        <field name="tag">dingtalk_dashboard</field>
+    </record>
+
+    <template id="dingtalk_dashboard_template" name="Dingtalk Dashboard Template" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <link rel="stylesheet" type="text/scss" href="/dingtalk_dashboard/static/src/css/dashboard.css"/>
+            <script type="text/javascript" src="/dingtalk_dashboard/static/src/js/dashboard.js"></script>
+        </xpath>
+    </template>
+
+    <menuitem name="仪表盘"
+              id="dingtalk_dashboard_menu"
+              parent="ali_dingtalk.main_menu"
+              sequence="1"
+              action="dingtalk_dashboard_client"
+    />
+
+
+</odoo>

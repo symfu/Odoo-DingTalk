@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dingtalk_work_record,dingtalk.work.record,model_dingtalk_work_record,base.group_user,1,1,1,1
+access_dingtalk_work_record_list,dingtalk.work.record.list,model_dingtalk_work_record_list,base.group_user,1,1,1,1
+

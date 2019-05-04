@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dingtalk_message_type,dingtalk.message.type,model_dingtalk_message_type,base.group_user,1,1,1,1
+access_dingtalk_work_message,dingtalk.work.message,model_dingtalk_work_message,base.group_user,1,1,1,1
+access_dingtalk_work_message_user_list,dingtalk.work.message.user.list,model_dingtalk_work_message_user_list,base.group_user,1,1,1,1
+access_dingtalk_work_message_dept_list,dingtalk.work.message.dept.list,model_dingtalk_work_message_dept_list,base.group_user,1,1,1,1
+access_dingtalk_work_card_message_list,dingtalk.work.card.message.list,model_dingtalk_work_card_message_list,base.group_user,1,1,1,1
+access_dingtalk_work_oa_message_list,dingtalk.work.oa.message.list,model_dingtalk_work_oa_message_list,base.group_user,1,1,1,1
+access_dingtalk_message_template,dingtalk.message.template,model_dingtalk_message_template,base.group_user,1,1,1,1
+access_dingtalk_message_template_line,dingtalk.message.template.line,model_dingtalk_message_template_line,base.group_user,1,1,1,1

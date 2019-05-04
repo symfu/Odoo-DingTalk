@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dingtalk_approval_template,dingtalk.approval.template,model_dingtalk_approval_template,base.group_user,1,1,1,1
+access_dingtalk_approval_control,dingtalk.approval.control,model_dingtalk_approval_control,base.group_user,1,1,1,1
+access_dingtalk_approval_main,dingtalk.approval.main,model_dingtalk_approval_main,base.group_user,1,1,1,1
+access_dingtalk_approval_users,dingtalk.approval.users,model_dingtalk_approval_users,base.group_user,1,1,1,1
+access_dingtalk_approval_cc,dingtalk.approval.cc,model_dingtalk_approval_cc,base.group_user,1,1,1,1
+

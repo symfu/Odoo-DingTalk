@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dingtalk_hrm_list,dingtalk.hrm.list,model_dingtalk_hrm_list,dingtalk_hrm.personnel,1,1,1,1
+access_dingtalk_hrm_dimission_list,dingtalk.hrm.dimission.list,model_dingtalk_hrm_dimission_list,dingtalk_hrm.personnel,1,1,1,1
+access_dingtalk_hrm_list_line,dingtalk.hrm.list.line,model_dingtalk_hrm_list_line,dingtalk_hrm.personnel,1,1,1,1
+
+

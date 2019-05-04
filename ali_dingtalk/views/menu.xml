@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <menuitem name="钉钉"
+                  id="ali_dingtalk.main_menu"
+                  web_icon="ali_dingtalk,static/description/icon.png"/>
+
+        <menuitem name="消息" id="ali_dingtalk.message_menu"
+                  parent="ali_dingtalk.main_menu" sequence="10"
+        />
+
+        <menuitem name="报表" id="ali_dingtalk.report_menu"
+                  parent="ali_dingtalk.main_menu" sequence="75"
+        />
+
+        <menuitem name="设置" id="ali_dingtalk.configure_menu"
+                  parent="ali_dingtalk.main_menu" sequence="100"
+        />
+
+    </data>
+</odoo>
