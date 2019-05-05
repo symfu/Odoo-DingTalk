@@ -14,7 +14,7 @@
                     <label for="endDate">结束日期</label>
                     <em>必填项!</em>
                     <input type="date" required="required" class="form-control" name="endDate" id="endDate"
-                           value="2019-03-20"/>
+                           value= "2020-01-01"/>
                 </div>
             </div>
             <div class="col-md-10">
@@ -25,7 +25,7 @@
                 </div>
             </div>
             <div class="alert alert-info">
-                注意:开始和结束日期不能大于7天!!!
+                注意:开始和结束日期不受7天限制!!!
             </div>
         </div>
 	</t>

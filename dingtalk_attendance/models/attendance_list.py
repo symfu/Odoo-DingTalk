@@ -3,6 +3,7 @@ import json
 import logging
 import time
 import requests
+from datetime import datetime, timedelta
 from requests import ReadTimeout
 from odoo import api, fields, models
 from odoo.exceptions import UserError
@@ -96,14 +97,21 @@ class DingtalkAttendanceList(models.Model):
                 offset = 0
                 limit = 50
                 while True:
-                    data = {
-                        'workDateFrom': start_date + ' 00:00:00',  # 开始日期
-                        'workDateTo': end_date + ' 00:00:00',  # 结束日期
-                        'userIdList': user_list,  # 员工列表
-                        'offset': offset,  # 开始日期
-                        'limit': limit,  # 开始日期
-                    }
-                    has_more = self.send_post_dingtalk(data)
+                    check_data_to = datetime.strptime(end_date, "%Y-%m-%d")
+                    check_data_from = datetime.strptime(start_date, "%Y-%m-%d")
+                    delta = timedelta(days=7)
+                    check_data_to_mid = check_data_from + delta
+                    while (check_data_from < check_data_to):
+                        data = {
+                            'workDateFrom': str(check_data_from),  # 开始日期
+                            'workDateTo': str(check_data_to_mid),  # 结束日期
+                            'userIdList': user_list,  # 员工列表
+                            'offset': offset,  # 开始日期
+                            'limit': limit,  # 开始日期
+                        }
+                        has_more = self.send_post_dingtalk(data)
+                        check_data_from = check_data_to_mid
+                        check_data_to_mid += delta
                     if not has_more:
                         break
                     else:
@@ -113,14 +121,21 @@ class DingtalkAttendanceList(models.Model):
                 offset = 0
                 limit = 50
                 while True:
-                    data = {
-                        'workDateFrom': start_date + ' 00:00:00',  # 开始日期
-                        'workDateTo': end_date + ' 00:00:00',  # 结束日期
-                        'userIdList': u,  # 员工列表
-                        'offset': offset,  # 开始日期
-                        'limit': limit,  # 开始日期
-                    }
-                    has_more = self.send_post_dingtalk(data)
+                    check_data_to = datetime.strptime(end_date, "%Y-%m-%d")
+                    check_data_from = datetime.strptime(start_date, "%Y-%m-%d")
+                    delta = timedelta(days=7)
+                    check_data_to_mid = check_data_from + delta
+                    while (check_data_from < check_data_to):
+                        data = {
+                            'workDateFrom': str(check_data_from),  # 开始日期
+                            'workDateTo': str(check_data_to_mid),  # 结束日期
+                            'userIdList': u,  # 员工列表
+                            'offset': offset,  # 开始日期
+                            'limit': limit,  # 开始日期
+                        }
+                        has_more = self.send_post_dingtalk(data)
+                        check_data_from = check_data_to_mid
+                        check_data_to_mid += delta
                     if not has_more:
                         break
                     else:
