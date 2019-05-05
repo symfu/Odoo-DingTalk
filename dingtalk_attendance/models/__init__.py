@@ -2,3 +2,4 @@
 
 from . import simplegroups
 from . import attendance_list
+from . import attendance_listrecord
