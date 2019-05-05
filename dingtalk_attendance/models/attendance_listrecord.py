@@ -62,7 +62,7 @@ class DingtalkAttendanceListRecord(models.Model):
         """
         if not start_date and not end_date:
             raise UserError("必须选择要查询的开始日期和结束日期!")
-        logging.info(">>>开始获取员工打卡信息...")
+        logging.info(">>>开始获取员工打卡详情信息...")
         user_list = list()
         if user:
             h_emp = self.env['hr.employee'].sudo().search([('name', '=', user)])
@@ -159,10 +159,6 @@ class DingtalkAttendanceListRecord(models.Model):
                         a_list.sudo().write(data)
                     else:
                         self.env['dingtalk.attendance.list.record'].sudo().create(data)
-                if result.get('errmsg'):
-                    return True
-                else:
-                    return False
             else:
                 raise UserError('请求失败,原因为:{}'.format(result.get('errmsg')))
         except ReadTimeout:
@@ -175,7 +171,8 @@ class DingtalkAttendanceListRecord(models.Model):
         :param timeNum:
         :return:
         """
-        timeStamp = float(timeNum / 1000)
-        timeArray = time.localtime(timeStamp)
-        otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
-        return otherStyleTime
+        if timeNum:
+            timeStamp = float(timeNum / 1000)
+            timeArray = time.localtime(timeStamp)
+            otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
+            return otherStyleTime
