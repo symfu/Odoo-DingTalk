@@ -45,13 +45,12 @@ class DingtalkAttendanceListRecord(models.Model):
     workDate = fields.Date(string=u'工作日')
     emp_id = fields.Many2one(comodel_name='hr.employee', string=u'员工', required=True)
     checkType = fields.Selection(string=u'考勤类型', selection=[('OnDuty', '上班'), ('OffDuty', '下班')])
-    timeResult = fields.Selection(string=u'时间结果', selection=TimeResult)
     locationResult = fields.Selection(string=u'位置结果', selection=LocationResult)
     baseCheckTime = fields.Datetime(string=u'基准时间')
     userCheckTime = fields.Datetime(string=u'实际打卡时间')
     sourceType = fields.Selection(string=u'数据来源', selection=SourceType)
     outsideRemark = fields.Text(string='打卡备注')
-    invalidRecordMsg = fields.Text(string='打卡结果')
+    recordMsg = fields.Text(string='打卡结果')
 
     @api.model
     def get_attendance_listrecord(self, start_date, end_date, user=None):
@@ -143,13 +142,12 @@ class DingtalkAttendanceListRecord(models.Model):
                         'recordId': rec.get('id'),
                         'workDate': self.get_time_stamp(rec.get('workDate')),  # 工作日
                         'checkType': rec.get('checkType'),  # 考勤类型
-                        'timeResult': rec.get('timeResult'),  # 时间结果
                         'locationResult': rec.get('locationResult'),  # 考勤类型
                         'baseCheckTime': self.get_time_stamp(rec.get('baseCheckTime')),  # 基准时间
                         'userCheckTime': self.get_time_stamp(rec.get('userCheckTime')),  # 实际打卡时间
                         'sourceType': rec.get('sourceType'),  # 数据来源
                         'outsideRemark': rec.get('outsideRemark') if 'outsideRemark' in rec else '',  # 打卡备注
-                        'invalidRecordMsg': rec.get('invalidRecordMsg') if 'invalidRecordMsg' in rec else '',  # 打卡结果
+                        'recordMsg': rec.get('invalidRecordMsg') if 'invalidRecordMsg' in rec else rec.get('timeResult'),  # 打卡结果
                     }
                     groups = self.env['dingtalk.simple.groups'].sudo().search([('group_id', '=', rec.get('groupId'))])
                     if groups:

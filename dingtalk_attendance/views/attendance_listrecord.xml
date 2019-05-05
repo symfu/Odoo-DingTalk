@@ -10,12 +10,11 @@
                 <field name="recordId"/>
                 <field name="workDate"/>
                 <field name="checkType"/>
-                <field name="timeResult"/>
                 <field name="locationResult"/>
                 <field name="baseCheckTime"/>
                 <field name="userCheckTime"/>
                 <field name="sourceType"/>
-                <field name="invalidRecordMsg"/>
+                <field name="recordMsg"/>
                 <field name="outsideRemark"/>
                 <field name="company_id"/>
             </tree>
@@ -37,12 +36,11 @@
                 <field name="recordId"/>
                 <field name="workDate"/>
                 <field name="checkType"/>
-                <field name="timeResult"/>
                 <field name="locationResult"/>
                 <field name="baseCheckTime"/>
                 <field name="userCheckTime"/>
                 <field name="sourceType"/>
-                <field name="invalidRecordMsg"/>
+                <field name="recordMsg"/>
                 <field name="outsideRemark"/>
                 <field name="company_id"/>
             </search>
