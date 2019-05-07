@@ -5,8 +5,8 @@
     'description': """
         钉钉内免登第三方网站（odoo）
 	""",
-    'author': "Ongood",
-    'website': "https://ongood.cn",
+    'author': "Ongood,Li jinhui",
+    'website': "https://www.ongood.cn",
     'category': 'Connector',
     'version': '1.0',
     'depends': ['ali_dingtalk'],
