@@ -97,21 +97,21 @@ class DingtalkAttendanceList(models.Model):
                 offset = 0
                 limit = 50
                 while True:
-                    check_data_to = datetime.strptime(end_date, "%Y-%m-%d")
-                    check_data_from = datetime.strptime(start_date, "%Y-%m-%d")
+                    work_data_from = datetime.strptime(start_date, "%Y-%m-%d")
+                    work_data_to = datetime.strptime(end_date, "%Y-%m-%d")
                     delta = timedelta(days=7)
-                    check_data_to_mid = check_data_from + delta
-                    while (check_data_from < check_data_to):
+                    work_data_to_mid = work_data_from + delta
+                    while (work_data_from < work_data_to):
                         data = {
-                            'workDateFrom': str(check_data_from),  # 开始日期
-                            'workDateTo': str(check_data_to_mid),  # 结束日期
+                            'workDateFrom': str(work_data_from),  # 开始日期
+                            'workDateTo': str(work_data_to_mid),  # 结束日期
                             'userIdList': user_list,  # 员工列表
-                            'offset': offset,  # 开始日期
-                            'limit': limit,  # 开始日期
+                            'offset': offset,
+                            'limit': limit,
                         }
                         has_more = self.send_post_dingtalk(data)
-                        check_data_from = check_data_to_mid
-                        check_data_to_mid += delta
+                        work_data_from = work_data_to_mid
+                        work_data_to_mid += delta
                     if not has_more:
                         break
                     else:
@@ -121,26 +121,26 @@ class DingtalkAttendanceList(models.Model):
                 offset = 0
                 limit = 50
                 while True:
-                    check_data_to = datetime.strptime(end_date, "%Y-%m-%d")
-                    check_data_from = datetime.strptime(start_date, "%Y-%m-%d")
+                    work_data_from = datetime.strptime(start_date, "%Y-%m-%d")
+                    work_data_to = datetime.strptime(end_date, "%Y-%m-%d")
                     delta = timedelta(days=7)
-                    check_data_to_mid = check_data_from + delta
-                    while (check_data_from < check_data_to):
+                    work_data_to_mid = work_data_from + delta
+                    while (work_data_from < work_data_to):
                         data = {
-                            'workDateFrom': str(check_data_from),  # 开始日期
-                            'workDateTo': str(check_data_to_mid),  # 结束日期
-                            'userIdList': u,  # 员工列表
-                            'offset': offset,  # 开始日期
-                            'limit': limit,  # 开始日期
+                            'workDateFrom': str(work_data_from),  # 开始日期
+                            'workDateTo': str(work_data_to_mid),  # 结束日期
+                            'userIdList': user_list,  # 员工列表
+                            'offset': offset,  
+                            'limit': limit, 
                         }
                         has_more = self.send_post_dingtalk(data)
-                        check_data_from = check_data_to_mid
-                        check_data_to_mid += delta
+                        work_data_from = work_data_to_mid
+                        work_data_to_mid += delta
                     if not has_more:
                         break
                     else:
                         offset = offset + limit
-        logging.info(">>>根据日期获取员工打卡信息结束...")
+        logging.info(">>>根据日期获取员工打卡结果信息结束...")
         return {'state': True, 'msg': '执行成功'}
 
     @api.model

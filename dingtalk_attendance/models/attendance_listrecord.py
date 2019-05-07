@@ -95,8 +95,8 @@ class DingtalkAttendanceListRecord(models.Model):
         logging.info(user_list)
         for u in user_list:
             if isinstance(u, str):
-                check_data_to = datetime.strptime(end_date, "%Y-%m-%d")
                 check_data_from = datetime.strptime(start_date, "%Y-%m-%d")
+                check_data_to = datetime.strptime(end_date, "%Y-%m-%d")
                 delta = timedelta(days=7)
                 check_data_to_mid = check_data_from + delta
                 while (check_data_from < check_data_to):
@@ -110,8 +110,8 @@ class DingtalkAttendanceListRecord(models.Model):
                     check_data_to_mid += delta
 
             elif isinstance(u, list):
-                check_data_to = datetime.strptime(end_date, "%Y-%m-%d")
                 check_data_from = datetime.strptime(start_date, "%Y-%m-%d")
+                check_data_to = datetime.strptime(end_date, "%Y-%m-%d")
                 delta = timedelta(days=7)
                 check_data_to_mid = check_data_from + delta
                 while (check_data_from < check_data_to):
