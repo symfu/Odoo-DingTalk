@@ -2,7 +2,7 @@
 import base64
 import json
 import logging
-import time
+import time, random
 import requests
 from odoo import http
 from odoo.http import request
@@ -71,15 +71,19 @@ class IndexController(http.Controller):
             logging.info(">>>获取的user_info为：{}".format(user_info))
             employee = request.env['hr.employee'].sudo().search([('din_id', '=', user_info.get('userid'))])
             if employee:
-                    if employee.user_id:
-                        user = employee.user_id
-                        if user:
-                            # 解密钉钉登录密码
-                            logging.info(u'>>>:解密钉钉登录密码')
-                            password = base64.b64decode(user.din_password)
-                            password = password.decode(encoding='utf-8', errors='strict')
-                            request.session.authenticate(request.session.db, user.login, password)
-                            return http.local_redirect('/web')
-                        return http.local_redirect('/web/login')
-                    return http.local_redirect('/web/login')
+                user = employee.user_id
+                if user:
+                    # 解密钉钉登录密码
+                    logging.info(u'>>>:解密钉钉登录密码')
+                    password = base64.b64decode(user.din_password)
+                    password = password.decode(encoding='utf-8', errors='strict')
+                    request.session.authenticate(request.session.db, user.login, password)
+                    return http.local_redirect('/web')
+                else:
+                    # 自动注册
+                    password = str(random.randint(100000, 999999))
+                    fail = request.env['res.users'].sudo().create_user_by_employee(employee.id, password)
+                    if not fail:
+                        return http.local_redirect('/dingtalk/sign/in')
+                return http.local_redirect('/web/login')
             return http.local_redirect('/web/login')

@@ -19,4 +19,3 @@ class InheritResUsers(models.Model):
         for user in self:
             user.sudo().write({'din_password': base64.b64encode(user.password.encode('utf-8'))})
         super(InheritResUsers, self)._set_password()
-

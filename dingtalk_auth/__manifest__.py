@@ -9,7 +9,7 @@
     'website': "https://www.ongood.cn",
     'category': 'Connector',
     'version': '1.0',
-    'depends': ['ali_dingtalk'],
+    'depends': ['ali_dingtalk', 'dingtalk_login'],
     'data': [
         'views/dingtalk_auth_templates.xml',
     ]
