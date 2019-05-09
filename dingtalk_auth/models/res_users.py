@@ -16,7 +16,7 @@ class ResUsers(models.Model):
         if employee:
             # 账号生成格式：手机号@企业邮箱域名
             email_name = employee.mobile_phone
-            email_host = 'ongood.cn'
+            email_host = 'yiwanda.cn'
             email_count = len(self.search([('login', 'like', email_name)]).sudo())
             if email_count > 0:
                 user = request.env['res.users'].sudo().search([('login', '=', email_name + '@' + email_host)])
