@@ -2,7 +2,7 @@
 from odoo import models, fields, api
 from odoo.http import request
 from odoo.exceptions import AccessDenied
-
+from xpinyin import Pinyin
 
 class ResUsers(models.Model):
     _inherit = 'res.users'
@@ -14,9 +14,17 @@ class ResUsers(models.Model):
         """
         employee = request.env['hr.employee'].sudo().search([('id', '=', employee_id)])
         if employee:
-            # 账号生成格式：手机号@企业邮箱域名
-            email_name = employee.mobile_phone
-            email_host = 'yiwanda.cn'
+            # 账号生成改为格式：姓名首字母+手机号末四位@企业邮箱域名
+            # 安装 xpinyin:  pip install xpinyin
+            # email_name1 = Pinyin().get_pinyin(employee.name, '')  #全拼
+            email_name1 = Pinyin().get_initials(employee.name, '').lower()  #首字母
+            email_name2 = employee.mobile_phone[7:]
+            email_name = email_name1 + email_name2
+            url = request.env['ir.config_parameter'].sudo().get_param('mail.catchall.domain')
+            if url:
+                email_host = url
+            else:
+                email_host = 'dingtalk.com'
             email_count = len(self.search([('login', 'like', email_name)]).sudo())
             if email_count > 0:
                 user = request.env['res.users'].sudo().search([('login', '=', email_name + '@' + email_host)])
