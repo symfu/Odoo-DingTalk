@@ -18,7 +18,7 @@
         'views/simplegroups.xml',
         'views/attendance_list.xml',
         'views/attendance_listrecord.xml',
-        'views/hr_attendance.xml',
+        # 'views/hr_attendance.xml',
     ],
     'qweb': [
         'static/xml/*.xml'

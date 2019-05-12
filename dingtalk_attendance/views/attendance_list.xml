@@ -7,7 +7,9 @@
             <tree default_order="workDate desc" editable="top" create="false" edit="false">
                 <field name="group_id"/>
                 <field name="emp_id"/>
+                <field name="din_id"/>
                 <field name="recordId"/>
+                <field name="planId"/>
                 <field name="workDate"/>
                 <field name="checkType"/>
                 <field name="timeResult"/>
@@ -32,7 +34,9 @@
             <search string="打卡结果">
                 <field name="group_id"/>
                 <field name="emp_id"/>
+                <field name="din_id"/>
                 <field name="recordId"/>
+                <field name="planId"/>
                 <field name="workDate"/>
                 <field name="checkType"/>
                 <field name="timeResult"/>

@@ -51,6 +51,7 @@ class DingtalkAttendanceListRecord(models.Model):
     sourceType = fields.Selection(string=u'数据来源', selection=SourceType)
     outsideRemark = fields.Text(string='打卡备注')
     recordMsg = fields.Text(string='打卡结果')
+    planId = fields.Char(string='排班ID')
 
     @api.model
     def get_attendance_listrecord(self, start_date, end_date, user=None):
@@ -148,6 +149,7 @@ class DingtalkAttendanceListRecord(models.Model):
                         'sourceType': rec.get('sourceType'),  # 数据来源
                         'outsideRemark': rec.get('outsideRemark') if 'outsideRemark' in rec else '',  # 打卡备注
                         'recordMsg': rec.get('invalidRecordMsg') if 'invalidRecordMsg' in rec else rec.get('timeResult'),  # 打卡结果
+                        'planId': rec.get('planId'),
                     }
                     groups = self.env['dingtalk.simple.groups'].sudo().search([('group_id', '=', rec.get('groupId'))])
                     if groups:

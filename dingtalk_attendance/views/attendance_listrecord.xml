@@ -14,6 +14,7 @@
                 <field name="baseCheckTime"/>
                 <field name="userCheckTime"/>
                 <field name="sourceType"/>
+                <field name="planId"/>
                 <field name="recordMsg"/>
                 <field name="outsideRemark"/>
                 <field name="company_id"/>
@@ -40,6 +41,7 @@
                 <field name="baseCheckTime"/>
                 <field name="userCheckTime"/>
                 <field name="sourceType"/>
+                <field name="planId"/>
                 <field name="recordMsg"/>
                 <field name="outsideRemark"/>
                 <field name="company_id"/>

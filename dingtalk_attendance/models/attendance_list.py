@@ -41,7 +41,8 @@ class DingtalkAttendanceList(models.Model):
     company_id = fields.Many2one(comodel_name='res.company', string=u'公司',
                                  default=lambda self: self.env.user.company_id.id)
     group_id = fields.Many2one(comodel_name='dingtalk.simple.groups', string=u'考勤组')
-    recordId = fields.Char(string='记录ID')
+    din_id = fields.Char(string='唯一标识ID')
+    recordId = fields.Char(string='打卡记录ID')
     workDate = fields.Date(string=u'工作日')
     emp_id = fields.Many2one(comodel_name='hr.employee', string=u'员工', required=True)
     checkType = fields.Selection(string=u'考勤类型', selection=[('OnDuty', '上班'), ('OffDuty', '下班')])
@@ -50,6 +51,7 @@ class DingtalkAttendanceList(models.Model):
     baseCheckTime = fields.Datetime(string=u'基准时间')
     userCheckTime = fields.Datetime(string=u'实际打卡时间')
     sourceType = fields.Selection(string=u'数据来源', selection=SourceType)
+    planId = fields.Char(string='排班ID')
 
     @api.model
     def get_attendance_list(self, start_date, end_date, user=None):
@@ -155,6 +157,7 @@ class DingtalkAttendanceList(models.Model):
             if result.get('errcode') == 0:
                 for rec in result.get('recordresult'):
                     data = {
+                        'din_id': rec.get('id'),
                         'recordId': rec.get('recordId'),
                         'workDate': self.get_time_stamp(rec.get('workDate')),  # 工作日
                         'checkType': rec.get('checkType'),  # 考勤类型
@@ -163,6 +166,7 @@ class DingtalkAttendanceList(models.Model):
                         'baseCheckTime': self.get_time_stamp(rec.get('baseCheckTime')),  # 基准时间
                         'userCheckTime': self.get_time_stamp(rec.get('userCheckTime')),  # 实际打卡时间
                         'sourceType': rec.get('sourceType'),  # 数据来源
+                        'planId': rec.get('planId'),
                     }
                     groups = self.env['dingtalk.simple.groups'].sudo().search([('group_id', '=', rec.get('groupId'))])
                     if groups:
