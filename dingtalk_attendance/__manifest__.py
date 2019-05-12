@@ -7,7 +7,7 @@
     'website': "https://www.sxfblog.com",
     'category': 'dingtalk',
     'version': '1.0',
-    'depends': ['base', 'ali_dingtalk', 'mail'],
+    'depends': ['base', 'ali_dingtalk', 'mail', 'hr_attendance'],
     'installable': True,
     'application': False,
     'auto_install': True,
@@ -18,6 +18,7 @@
         'views/simplegroups.xml',
         'views/attendance_list.xml',
         'views/attendance_listrecord.xml',
+        'views/hr_attendance.xml',
     ],
     'qweb': [
         'static/xml/*.xml'

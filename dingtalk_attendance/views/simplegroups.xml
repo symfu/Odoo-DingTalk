@@ -76,11 +76,17 @@
               groups="ali_dingtalk.group_ali_dingtalk_user"
     />
 
-    <menuitem id="dingtalk_simple_groups_menu" name="考勤组"
+    <menuitem id="dingtalk_simple_groups_menu1" name="考勤组"
               parent="simple_groups_main_menu"
               sequence="1"
               action="dingtalk_simple_groups_action"
     />
+
+    <menuitem id="dingtalk_simple_groups_menu2" name="考勤组"
+              parent="hr_attendance.menu_hr_attendance_manage_attendances"
+              sequence="1"
+              action="dingtalk_simple_groups_action"
+    />  
 
 
     <record id="dingtalk_attendance.hr_employee_form_inherit" model="ir.ui.view">
