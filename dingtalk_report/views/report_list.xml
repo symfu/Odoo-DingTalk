@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="dingtalk_report_list_tree_view" model="ir.ui.view">
+        <field name="name">日志列表</field>
+        <field name="model">dingtalk.report.list</field>
+        <field name="arch" type="xml">
+            <tree default_order="id desc">
+                <field name="company_id"/>
+                <field name="report_id"/>
+                <field name="template_id"/>
+                <field name="dept_name"/>
+                <field name="creator_name"/>
+                <field name="create_time"/>
+                <field name="image_url"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="dingtalk_report_list_action" model="ir.actions.act_window">
+        <field name="name">日志列表</field>
+        <field name="res_model">dingtalk.report.list</field>
+        <field name="view_mode">tree</field>
+    </record>
+
+    <record model="ir.ui.view" id="dingtalk_report_list_search">
+        <field name="model">dingtalk.report.list</field>
+        <field name="arch" type="xml">
+            <search string="日志列表">
+                <field name="company_id"/>
+                <field name="report_id"/>
+                <field name="template_id"/>
+                <field name="dept_name"/>
+                <field name="creator_name"/>
+                <field name="create_time"/>
+            </search>
+        </field>
+    </record>
+
+    <menuitem name="日志列表"
+              id="dingtalk_report_list_menu"
+              parent="dingtalk_report_main_menu"
+              sequence="2"
+              action="dingtalk_report_list_action"
+    />
+
+</odoo>

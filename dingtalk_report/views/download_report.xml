@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 日志下载向导 -->
+    <record id='dingtalk_download_report_result_action' model='ir.actions.act_window'>
+        <field name='name'>Download report</field>
+        <field name='res_model'>dingtalk.report.list.download</field>
+        <field name="binding_model_id" ref="model_dingtalk_report_template"/>     <!--关联到日志模板视图的action-->
+        <field name="target">new</field>
+        <field name='view_mode'>form</field>
+    </record>
+    <record id="dingtalk_download_report_list_form" model="ir.ui.view">
+        <field name="name">Download Report Form</field>
+        <field name="model">dingtalk.report.list.download</field>
+        <field name="arch" type="xml">
+            <form string="Download Report">
+                <separator string="日志的起始/结束工作日:" colspan="4" />
+                <group>
+                    <field name="date_from" class="oe_inline"/>
+					<field name="date_to" class="oe_inline"/>
+                </group>
+                <footer>
+                    <button string="下载日志列表" name="get_report_list" type="object" class="oe_highlight"/>
+                    <button special="cancel" string="取消"/>
+                </footer>
+            </form>
+        </field>
+    </record> 
+
+</odoo>
