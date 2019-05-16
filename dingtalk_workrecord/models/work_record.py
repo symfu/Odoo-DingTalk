@@ -64,9 +64,11 @@ class DingtalkWorkRecord(models.Model):
 
     @api.model
     def get_workrecord(self):
-        """获取所有用户的待办事项"""
+        """获取当前用户的待办事项"""
         logging.info(">>>Start getting to-do items")
-        din_ids = self.env['hr.employee'].search_read([('din_id', '!=', '')], fields=['din_id'])
+        #暂时关闭获取所有用户的代办事项，改为只有关联了odoo用户的员工的代办事项。
+        # din_ids = self.env['hr.employee'].search_read([('din_id', '!=', '')], fields=['din_id']) 
+        din_ids = self.env['hr.employee'].search_read([('din_id', '!=', ''),('user_id', '=', self.env.user.id)], fields=['din_id'])
         offset = 0  # 分页游标
         limit = 50  # 分页大小
         for emp in din_ids:

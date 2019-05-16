@@ -12,7 +12,8 @@
                 <field name="dept_name"/>
                 <field name="creator_name"/>
                 <field name="create_time"/>
-                <field name="image_url"/>
+                <field name="image1_url" widget="image_url" class="oe_image_small" width="100px" height="100px"/>
+                <field name="image2_url" widget="image_url" class="oe_image_small" width="100px" height="100px"/>
             </tree>
         </field>
     </record>

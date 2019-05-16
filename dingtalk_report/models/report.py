@@ -96,8 +96,8 @@ class DingtalkReportList(models.Model):
     name = fields.Char(string='日志名', required=True)
     remark = fields.Char(string='备注')
     dept_name = fields.Char(string='部门')
-    image_url = fields.Char(string='图片链接')
-    image2_url = fields.Char(string='图片2')
+    image1_url = fields.Char(string='图片1链接')
+    image2_url = fields.Char(string='图片2链接')
     creator_name = fields.Char(string='日志创建人')
     create_time = fields.Char(string='日志创时间')
     report_id = fields.Char(string='日志ID')
@@ -136,10 +136,9 @@ class DownloadDingtalkList(models.TransientModel):
             for temp in templates:
                 if temp:
                     data = {
-                        'start_time': int(time.mktime(self.date_from.timetuple())*1000),
+                        'start_time': int(time.mktime(self.date_from.timetuple())*1000),  #datetime转13位时间戳
                         'end_time': int(time.mktime(self.date_to.timetuple())*1000),
                         'template_name': temp.name,
-                        'userid': emp.din_id,
                         'cursor': 0,
                         'size': 20,
                     }
@@ -147,9 +146,10 @@ class DownloadDingtalkList(models.TransientModel):
                     try:
                         result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=5)
                         result = json.loads(result.text)
-                        # logging.info(">>>获取日志列表返回结果{}".format(result))
+                        logging.info(">>>获取日志列表返回结果{}".format(result))
                         if result.get('errcode') == 0:
                             d_res = result.get('result')
+                            print('1111111111111111111111111111',d_res)
                             #获取日志列表
                             for report in d_res.get('data_list'):
                                 data = {
@@ -160,9 +160,11 @@ class DownloadDingtalkList(models.TransientModel):
                                     'report_id': report.get('report_id'),
                                     'creator_name': report.get('creator_name'),
                                     'create_time': self.get_time_stamp(report.get('create_time')),
-                                    'image_url': report.get('images') if report.get('images') else '',
-                                    # 'image2_url': report.get('images')[1]['image'] if len(report.get('images')) > 1 else '',
                                 }
+                                if report.get('images'):
+                                    data.update({'image1_url': json.loads(report.get('images')[0]).get('image')})
+                                    if len(report.get('images')) >1:
+                                        data.update({'image2_url': json.loads(report.get('images')[1]).get('image')})
                                 report_list = self.env['dingtalk.report.list'].search(
                                     [('report_id', '=', report.get('report_id'))])
                                 if report_list:

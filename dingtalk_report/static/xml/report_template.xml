@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<template id="template" xml:space="preserve">
+<template id="report_template" xml:space="preserve">
 
     <t t-name="PullDingtalkReportTemplate">
         <div class="alert alert-info">
