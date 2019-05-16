@@ -93,20 +93,57 @@ class DingtalkReportList(models.Model):
     _description = "日志列表"
     _rec_name = 'name'
 
-    name = fields.Char(string='日志名', required=True)
+    name = fields.Char(string='日志名')
+    report_id = fields.Char(string='日志ID')
     remark = fields.Char(string='备注')
     dept_name = fields.Char(string='部门')
     image1_url = fields.Char(string='图片1链接')
     image2_url = fields.Char(string='图片2链接')
     creator_name = fields.Char(string='日志创建人')
     create_time = fields.Char(string='日志创时间')
-    report_id = fields.Char(string='日志ID')
+    read_num = fields.Char(string='已读数')
+    comment_user_num = fields.Char(string='评论数')
+    like_num = fields.Char(string='点赞数')
     template_id = fields.Many2one(comodel_name='dingtalk.report.template', string=u'日志模板', required=True)
-    
-    
     company_id = fields.Many2one(comodel_name='res.company',
                                  string=u'公司', default=lambda self: self.env.user.company_id.id)            
             
+
+    @api.multi
+    def get_report_statistics(self):
+        """
+        获取日志统计数据
+        :param pid:
+        :param pcode:
+        :return:
+        """
+        
+        url = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'get_report_statistics')]).value
+        token = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'token')]).value
+        reports = self.env['dingtalk.report.list'].browse(self._context.get('active_ids',[]))
+        for report in reports:
+            if report:
+                data = {
+                    'report_id': report['report_id'],
+                }
+                headers = {'Content-Type': 'application/json'}
+                try:
+                    result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=5)
+                    result = json.loads(result.text)
+                    logging.info(">>>获取日志统计数据返回结果{}".format(result))
+                    if result.get('errcode') == 0:
+                        res = result.get('result')
+                        data = {
+                                'read_num': res.get('read_num'),
+                                'comment_user_num': res.get('comment_user_num'),
+                                'like_num': res.get('like_num'),
+                                }
+                        report.write(data)
+                    else:
+                        raise UserError('获取日志统计数据失败，详情为:{}'.format(result.get('errmsg')))
+                except ReadTimeout:
+                    raise UserError("网络连接超时！")
+        logging.info(">>>获取日志统计数据结束...")  
 
 
 class DownloadDingtalkList(models.TransientModel):
@@ -125,6 +162,86 @@ class DownloadDingtalkList(models.TransientModel):
         :param pcode:
         :return:
         """
+
+        url = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'get_report_list')]).value
+        token = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'token')]).value
+        templates = self.env['dingtalk.report.template'].browse(self._context.get('active_ids',[]))
+        for temp in templates:
+            if temp:
+                data = {
+                    'start_time': int(time.mktime(self.date_from.timetuple())*1000),  #datetime转13位时间戳
+                    'end_time': int(time.mktime(self.date_to.timetuple())*1000),
+                    'template_name': temp.name,
+                    'cursor': 0,
+                    'size': 20,
+                }
+                headers = {'Content-Type': 'application/json'}
+                try:
+                    result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=5)
+                    result = json.loads(result.text)
+                    logging.info(">>>获取日志列表返回结果{}".format(result))
+                    if result.get('errcode') == 0:
+                        d_res = result.get('result')
+                        #获取日志列表
+                        for report in d_res.get('data_list'):
+                            data = {
+                                'template_id': temp.id,
+                                'name': report.get('creator_name') + "的" + report.get('template_name'),
+                                'remark': report.get('remark'),
+                                'dept_name': report.get('dept_name'),
+                                'report_id': report.get('report_id'),
+                                'creator_name': report.get('creator_name'),
+                                'create_time': self.get_time_stamp(report.get('create_time')),
+                            }
+                            if report.get('images'):
+                                data.update({'image1_url': json.loads(report.get('images')[0]).get('image')})
+                                if len(report.get('images')) >1:
+                                    data.update({'image2_url': json.loads(report.get('images')[1]).get('image')})
+                            report_list = self.env['dingtalk.report.list'].search(
+                                [('report_id', '=', report.get('report_id'))])
+                            if report_list:
+                                report_list.write(data)
+                            else:
+                                self.env['dingtalk.report.list'].create(data)
+                            
+                            
+                            report_list = self.env['dingtalk.report.list'].search(
+                                [('report_id', '=', report.get('report_id'))])
+                            
+                            #获取日志内容
+                            for content in report['contents']:
+                                data = {
+                                'name': report.get('template_name'),
+                                'report_id': report_list.id,
+                                'report_sort': content.get('sort'),
+                                'report_type': content.get('type'),
+                                'report_key': content.get('key'),
+                                'report_value': content.get('value'),
+                                }
+                                report_content = self.env['dingtalk.report.list.contents'].search(
+                                    [('report_id', '=', report_list.id), ('report_sort', '=', content.get('sort'))])
+                                if report_content:
+                                    report_content.write(data)
+                                else:
+                                    self.env['dingtalk.report.list.contents'].create(data)
+
+                    else:
+                        raise UserError('获取日志列表失败，详情为:{}'.format(result.get('errmsg')))
+                except ReadTimeout:
+                    raise UserError("网络连接超时！")
+        logging.info(">>>获取日志列表结束...")              
+
+
+
+
+    @api.multi
+    def get_report_list_byuser(self):
+        """
+        获取我的日志列表
+        :param pid:
+        :param pcode:
+        :return:
+        """
         
         emp = self.env['hr.employee'].sudo().search([('user_id', '=', self.env.user.id)])
         if len(emp) > 1:
@@ -139,6 +256,7 @@ class DownloadDingtalkList(models.TransientModel):
                         'start_time': int(time.mktime(self.date_from.timetuple())*1000),  #datetime转13位时间戳
                         'end_time': int(time.mktime(self.date_to.timetuple())*1000),
                         'template_name': temp.name,
+                        'userid': emp.din_id,
                         'cursor': 0,
                         'size': 20,
                     }
@@ -149,7 +267,6 @@ class DownloadDingtalkList(models.TransientModel):
                         logging.info(">>>获取日志列表返回结果{}".format(result))
                         if result.get('errcode') == 0:
                             d_res = result.get('result')
-                            print('1111111111111111111111111111',d_res)
                             #获取日志列表
                             for report in d_res.get('data_list'):
                                 data = {
@@ -192,10 +309,10 @@ class DownloadDingtalkList(models.TransientModel):
                                         self.env['dingtalk.report.list.contents'].create(data)
 
                         else:
-                            raise UserError('获取日志列表失败，详情为:{}'.format(result.get('errmsg')))
+                            raise UserError('获取我的日志列表失败，详情为:{}'.format(result.get('errmsg')))
                     except ReadTimeout:
                         raise UserError("网络连接超时！")
-            logging.info(">>>获取日志列表结束...")              
+            logging.info(">>>获取我的日志列表结束...")              
 
     @api.model
     def get_time_stamp(self, timeNum):

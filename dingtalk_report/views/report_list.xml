@@ -6,12 +6,15 @@
         <field name="model">dingtalk.report.list</field>
         <field name="arch" type="xml">
             <tree default_order="id desc">
-                <field name="company_id"/>
-                <field name="report_id"/>
-                <field name="template_id"/>
+                <!-- <field name="company_id"/> -->
+                <!-- <field name="report_id"/> -->
+                <field name="name"/>
                 <field name="dept_name"/>
-                <field name="creator_name"/>
+                <!-- <field name="creator_name"/> -->
                 <field name="create_time"/>
+                <field name="read_num"/>
+                <field name="comment_user_num"/>
+                <field name="like_num"/>
                 <field name="image1_url" widget="image_url" class="oe_image_small" width="100px" height="100px"/>
                 <field name="image2_url" widget="image_url" class="oe_image_small" width="100px" height="100px"/>
             </tree>
@@ -30,7 +33,7 @@
             <search string="日志列表">
                 <field name="company_id"/>
                 <field name="report_id"/>
-                <field name="template_id"/>
+                <!-- <field name="template_id"/> -->
                 <field name="dept_name"/>
                 <field name="creator_name"/>
                 <field name="create_time"/>
@@ -38,11 +41,33 @@
         </field>
     </record>
 
+
+    <!-- 日志同步 -->
+    <record id='dingtalk_pull_report_list_action' model='ir.actions.act_window'>
+        <field name='name'>Pull Report</field>
+        <field name='res_model'>dingtalk.report.list</field>
+        <field name="binding_model_id" ref="model_dingtalk_report_list"/>     <!--关联到日志视图的action-->
+        <field name="target">new</field>
+        <field name='view_mode'>form</field>
+    </record>
+    <record id="dingtalk_pull_report_list_form" model="ir.ui.view">
+        <field name="name">Pull Report Form</field>
+        <field name="model">dingtalk.report.list</field>
+        <field name="arch" type="xml">
+            <form string="Pull Report">
+                确认要进行日志同步吗？
+                <footer>
+                    <button string="同步日志" name="get_report_statistics" type="object" class="oe_highlight"/>
+                    <button special="cancel" string="取消"/>
+                </footer>
+            </form>
+        </field>
+    </record> 
+
     <menuitem name="日志列表"
               id="dingtalk_report_list_menu"
               parent="dingtalk_report_main_menu"
               sequence="2"
-              action="dingtalk_report_list_action"
-    />
+              action="dingtalk_report_list_action"/>
 
 </odoo>
