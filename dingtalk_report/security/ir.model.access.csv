@@ -2,3 +2,7 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_dingtalk_report_template,dingtalk.report.template,model_dingtalk_report_template,base.group_user,1,1,1,1
 access_dingtalk_report_list,dingtalk.report.list,model_dingtalk_report_list,base.group_user,1,1,1,1
 access_dingtalk_report_list_contents,dingtalk.report.list.contents,model_dingtalk_report_list_contents,base.group_user,1,1,1,1
+access_dingtalk_report_list_receivers,dingtalk.report.list.receivers,model_dingtalk_report_list_receivers,base.group_user,1,1,1,1
+access_dingtalk_report_list_followers,dingtalk.report.list.followers,model_dingtalk_report_list_followers,base.group_user,1,1,1,1
+access_dingtalk_report_list_comments,dingtalk.report.list.comments,model_dingtalk_report_list_comments,base.group_user,1,1,1,1
+access_dingtalk_report_list_images,dingtalk.report.list.images,model_dingtalk_report_list_images,base.group_user,1,1,1,1

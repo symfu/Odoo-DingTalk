@@ -4,19 +4,18 @@
     <record id="dingtalk_report_list_tree_view" model="ir.ui.view">
         <field name="name">日志列表</field>
         <field name="model">dingtalk.report.list</field>
+        <field name="type">tree</field>
         <field name="arch" type="xml">
             <tree default_order="id desc">
-                <!-- <field name="company_id"/> -->
-                <!-- <field name="report_id"/> -->
+                <field name="report_id"/>
                 <field name="name"/>
                 <field name="dept_name"/>
-                <!-- <field name="creator_name"/> -->
                 <field name="create_time"/>
                 <field name="read_num"/>
                 <field name="comment_user_num"/>
                 <field name="like_num"/>
-                <field name="image1_url" widget="image_url" class="oe_image_small" width="100px" height="100px"/>
-                <field name="image2_url" widget="image_url" class="oe_image_small" width="100px" height="100px"/>
+                <!-- <field name="image1_url" widget="image_url" class="oe_image_small" width="100px" height="100px"/>
+                <field name="image2_url" widget="image_url" class="oe_image_small" width="100px" height="100px"/> -->
             </tree>
         </field>
     </record>
@@ -24,8 +23,16 @@
     <record id="dingtalk_report_list_action" model="ir.actions.act_window">
         <field name="name">日志列表</field>
         <field name="res_model">dingtalk.report.list</field>
-        <field name="view_mode">tree</field>
+        <field name="view_mode">tree,form</field>
     </record>
+
+            <!-- <record id="open_mgmtsystem_action_list" model="ir.actions.act_window">
+            <field name="name">Actions</field>
+            <field name="res_model">mgmtsystem.action</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="context">{"search_default_my_actions": 1}</field>
+        </record> -->
 
     <record model="ir.ui.view" id="dingtalk_report_list_search">
         <field name="model">dingtalk.report.list</field>
@@ -43,10 +50,10 @@
 
 
     <!-- 日志同步 -->
-    <record id='dingtalk_pull_report_list_action' model='ir.actions.act_window'>
+    <!-- <record id='dingtalk_pull_report_list_action' model='ir.actions.act_window'>
         <field name='name'>Pull Report</field>
         <field name='res_model'>dingtalk.report.list</field>
-        <field name="binding_model_id" ref="model_dingtalk_report_list"/>     <!--关联到日志视图的action-->
+        <field name="binding_model_id" ref="model_dingtalk_report_list"/>  
         <field name="target">new</field>
         <field name='view_mode'>form</field>
     </record>
@@ -62,7 +69,116 @@
                 </footer>
             </form>
         </field>
-    </record> 
+    </record>  -->
+
+    <record id="dingtalk_report_form_view" model="ir.ui.view">
+        <field name="name">Report Form</field>
+        <field name="model">dingtalk.report.list</field>
+        <field name="arch" type="xml">
+            <form string="钉钉日志">
+                <header>
+                    <button name="update_report" type="object" string="同步日志" class="oe_highlight"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                        <h3>
+                            <field name="company_id"/>
+                        </h3>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="report_id"/>
+                            <field name="dept_name"/>
+                            <field name="create_time"/> 
+                        </group>  
+                        <group>
+                            <field name="read_num"/>
+                            <field name="comment_user_num"/>
+                            <field name="like_num"/>
+                        </group>  
+                    </group>
+                    <notebook>
+                        <page string="日志内容列表">
+                            <field name="content_ids"/>
+                        </page>
+                        <page string="接收人员列表">
+                            <field name="receiver_user_ids"/>
+                        </page>
+                        <page string="相关人员列表">
+                            <field name="follower_user_ids"/>   
+                        </page>
+                        <page string="图片列表">
+                            <field name="image_url_ids"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="dingtalk_report_list_receivers_tree_view" model="ir.ui.view">
+        <field name="name">日志接收人列表</field>
+        <field name="model">dingtalk.report.list.receivers</field>
+        <field name="type">tree</field>
+        <field name="arch" type="xml">
+            <tree default_order="id desc">
+                <field name="emp_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="dingtalk_report_list_followers_tree_view" model="ir.ui.view">
+        <field name="name">日志相关人列表</field>
+        <field name="model">dingtalk.report.list.followers</field>
+        <field name="type">tree</field>
+        <field name="arch" type="xml">
+            <tree default_order="id desc">
+                <field name="emp_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="dingtalk_report_list_comments_tree_view" model="ir.ui.view">
+        <field name="name">日志评论列表</field>
+        <field name="model">dingtalk.report.list.comments</field>
+        <field name="type">tree</field>
+        <field name="arch" type="xml">
+            <tree default_order="id desc">
+                <field name="emp_id"/>
+                <field name="report_comment"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="dingtalk_report_list_images_tree_view" model="ir.ui.view">
+        <field name="name">日志图片列表</field>
+        <field name="model">dingtalk.report.list.images</field>
+        <field name="type">tree</field>
+        <field name="arch" type="xml">
+            <tree default_order="id desc">
+                <field name="image_url"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="dingtalk_report_list_contents_tree_view" model="ir.ui.view">
+        <field name="name">日志内容列表</field>
+        <field name="model">dingtalk.report.list.contents</field>
+        <field name="type">tree</field>
+        <field name="arch" type="xml">
+            <tree default_order="id desc">
+                <field name="report_field_sort"/>
+                <field name="report_field_type"/>
+                <field name="report_field_key"/>
+                <field name="report_field_value"/>
+            </tree>
+        </field>
+    </record>
+
 
     <menuitem name="日志列表"
               id="dingtalk_report_list_menu"
