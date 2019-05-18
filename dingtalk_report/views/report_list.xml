@@ -110,6 +110,9 @@
                         <page string="相关人员列表">
                             <field name="follower_user_ids"/>   
                         </page>
+                        <page string="评论列表">
+                            <field name="comment_user_ids"/>   
+                        </page>
                         <page string="图片列表">
                             <field name="image_url_ids"/>
                         </page>
@@ -127,6 +130,7 @@
         <field name="arch" type="xml">
             <tree default_order="id desc">
                 <field name="emp_id"/>
+                <field name="report_follower_type"/>
             </tree>
         </field>
     </record>
@@ -138,6 +142,7 @@
         <field name="arch" type="xml">
             <tree default_order="id desc">
                 <field name="emp_id"/>
+                <field name="report_follower_type"/>
             </tree>
         </field>
     </record>
@@ -160,7 +165,7 @@
         <field name="type">tree</field>
         <field name="arch" type="xml">
             <tree default_order="id desc">
-                <field name="image_url"/>
+                <field name="image_url" widget="image_url" class="oe_image_small" width="100px" height="100px"/>
             </tree>
         </field>
     </record>
@@ -170,7 +175,7 @@
         <field name="model">dingtalk.report.list.contents</field>
         <field name="type">tree</field>
         <field name="arch" type="xml">
-            <tree default_order="id desc">
+            <tree default_order="report_field_sort">
                 <field name="report_field_sort"/>
                 <field name="report_field_type"/>
                 <field name="report_field_key"/>

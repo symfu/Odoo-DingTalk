@@ -7,9 +7,10 @@
     'website': "https://www.ongood.cn",
     'category': 'dingtalk',
     'version': '1.0',
+    "sequence": 0,
     'depends': ['base', 'ali_dingtalk'],
     'installable': True,
-    'application': False,
+    'application': True,
     'auto_install': True,
     'data': [
         'security/ir.model.access.csv',

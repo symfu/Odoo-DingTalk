@@ -3,45 +3,45 @@
     <data noupdate="1">
 
         <!--日志实例-->
-        <record id="ali_dingtalk_system_conf_report_get_template_listbyuserid" model="ali.dingtalk.system.conf">
+        <record id="ali_dingtalk_system_conf_get_report_template_listbyuserid" model="ali.dingtalk.system.conf">
             <field name="name">获取用户可见的日志模板</field>
             <field name="key">get_report_template_listbyuserid</field>
             <field name="value">https://oapi.dingtalk.com/topapi/report/template/listbyuserid?access_token=</field>
         </record>
 
-        <record id="ali_dingtalk_system_conf_report_get_list" model="ali.dingtalk.system.conf">
+        <record id="ali_dingtalk_system_conf_get_report_list" model="ali.dingtalk.system.conf">
             <field name="name">获取用户日志数据</field>
             <field name="key">get_report_list</field>
             <field name="value">https://oapi.dingtalk.com/topapi/report/list?access_token=</field>
         </record>
 
-        <record id="ali_dingtalk_system_conf_report_get_unreadcount" model="ali.dingtalk.system.conf">
+        <record id="ali_dingtalk_system_conf_get_report_unreadcount" model="ali.dingtalk.system.conf">
             <field name="name">获取用户日志未读数</field>
             <field name="key">get_report_unreadcount</field>
             <field name="value">https://oapi.dingtalk.com/topapi/report/getunreadcount?access_token=</field>
         </record>
          <!-- 钉钉2019-5-15新增4条API -->
-        <record id="ali_dingtalk_system_conf_report_get_statistics" model="ali.dingtalk.system.conf">
+        <record id="ali_dingtalk_system_conf_get_report_statistics" model="ali.dingtalk.system.conf">
             <field name="name">获取日志统计数据</field>
             <field name="key">get_report_statistics</field>
             <field name="value">https://oapi.dingtalk.com/topapi/report/statistics?access_token=</field>
         </record>
 
-        <record id="ali_dingtalk_system_conf_report_get_statistics_listbytype" model="ali.dingtalk.system.conf">
+        <record id="ali_dingtalk_system_conf_get_report_followers" model="ali.dingtalk.system.conf">
             <field name="name">获取日志相关人员列表</field>
-            <field name="key">get_report_statistics_listbytype</field>
+            <field name="key">get_report_followers</field>
             <field name="value">https://oapi.dingtalk.com/topapi/report/statistics/listbytype?access_token=</field>
         </record>
 
-        <record id="ali_dingtalk_system_conf_report_get_receiver_list" model="ali.dingtalk.system.conf">
+        <record id="ali_dingtalk_system_conf_get_report_receivers" model="ali.dingtalk.system.conf">
             <field name="name">获取日志接收人员列表</field>
-            <field name="key">get_report_receiver_list</field>
+            <field name="key">get_report_receivers</field>
             <field name="value">https://oapi.dingtalk.com/topapi/report/receiver/list?access_token=</field>
         </record>
 
-        <record id="ali_dingtalk_system_conf_report_get_comment_list" model="ali.dingtalk.system.conf">
+        <record id="ali_dingtalk_system_conf_get_report_comments" model="ali.dingtalk.system.conf">
             <field name="name">获取日志评论详情</field>
-            <field name="key">get_report_comment_list</field>
+            <field name="key">get_report_comments</field>
             <field name="value">https://oapi.dingtalk.com/topapi/report/comment/list?access_token=</field>
         </record>
         
