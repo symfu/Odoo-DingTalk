@@ -13,7 +13,6 @@ class HrAttendance(models.Model):
     _inherit = "hr.attendance"
     _description = "Attendance"
 
-    check_in = fields.Datetime(string="打卡时间", default=fields.Datetime.now, required=False)
     TimeResult = [
         ('Normal', '正常'),
         ('Early', '早退'),
