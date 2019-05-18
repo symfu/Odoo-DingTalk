@@ -31,7 +31,7 @@ odoo.define('dingtalk.attendance.list.button', function (require) {
             let $buttons = this._super.apply(this, arguments);
             let tree_model = this.modelName;
             if (tree_model == 'dingtalk.attendance.list') {
-                let but = "<button type=\"button\" t-if=\"widget.modelName == 'dingtalk.attendance.list'\" class=\"btn btn-primary o_pull_dingtalk_simple_groups\">获取打卡信息</button>";
+                let but = "<button type=\"button\" t-if=\"widget.modelName == 'hr.attendance'\" class=\"btn o_pull_dingtalk_simple_groups\">获取钉钉考勤信息</button>";
                 let button2 = $(but).click(this.proxy('open_attendance_list_action'));
                 this.$buttons.append(button2);
             }
