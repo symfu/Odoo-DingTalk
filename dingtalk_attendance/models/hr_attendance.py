@@ -37,7 +37,7 @@ class HrAttendance(models.Model):
     ]
     ding_group_id = fields.Many2one(comodel_name='dingtalk.simple.groups', string=u'钉钉考勤组')
     recordId = fields.Char(string='记录ID')
-    workDate = fields.Date(string=u'工作日')
+    workDate = fields.Datetime(string=u'工作日')
     checkType = fields.Selection(string=u'考勤类型', selection=[('OnDuty', '上班'), ('OffDuty', '下班')])
     timeResult = fields.Selection(string=u'时间结果', selection=TimeResult)
     locationResult = fields.Selection(string=u'位置结果', selection=LocationResult)
@@ -214,10 +214,10 @@ class HrAttendanceTransient(models.TransientModel):
                     for attend in attendance:
                         if not attend.check_out:
                             off_check_out = datetime.strptime(offduy.get('check_out'), "%Y-%m-%d %H:%M:%S")
-                            # off_workDate = datetime.strptime(offduy.get('workDate'), "%Y-%m-%d %H:%M:%S")
+                            off_workDate = datetime.strptime(offduy.get('workDate'), "%Y-%m-%d %H:%M:%S")
                             if int(offduy.get('planId')) == int(attend.planId) + 1:
                                 attend.write({'check_out': offduy.get('check_out')})
-                            elif off_check_out > attend.check_in:
+                            elif off_check_out > attend.check_in and off_workDate < attend.workDate + timedelta(days=1):
                                 attend.write({'check_out': offduy.get('check_out')})
 
                 if result.get('hasMore'):
