@@ -28,8 +28,8 @@ class HrAttendance(models.Model):
         ('ATM', '考勤机'),
         ('BEACON', 'IBeacon'),
         ('DING_ATM', '钉钉考勤机'),
-        ('USER', '用户打卡'),
-        ('BOSS', '老板改签'),
+        ('USER', '手机打卡'),
+        ('BOSS', '管理员改签'),
         ('APPROVE', '审批系统'),
         ('SYSTEM', '考勤系统'),
         ('AUTO_CHECK', '自动打卡'),
@@ -42,7 +42,8 @@ class HrAttendance(models.Model):
     timeResult = fields.Selection(string=u'时间结果', selection=TimeResult)
     locationResult = fields.Selection(string=u'位置结果', selection=LocationResult)
     baseCheckTime = fields.Char(string=u'基准时间')
-    planId = fields.Char(string=u'班次ID')
+    planId1 = fields.Char(string=u'班次1ID')
+    planId2 = fields.Char(string=u'班次2ID')
     sourceType = fields.Selection(string=u'数据来源', selection=SourceType)
 
 
@@ -187,7 +188,7 @@ class HrAttendanceTransient(models.TransientModel):
                         'locationResult': rec.get('locationResult'),  # 考勤类型
                         'baseCheckTime': baseCheckTime,  # 上班基准时间
                         'sourceType': rec.get('sourceType'),  # 数据来源
-                        'planId': rec.get('planId'),
+                        'planId1': rec.get('planId'),
                         'check_in': self.get_time_stamp(rec.get('userCheckTime'))
 
                     }
@@ -201,12 +202,12 @@ class HrAttendanceTransient(models.TransientModel):
                         OnDuty_list.append(data)
                     else:
                         data.update({'check_out': self.get_time_stamp(rec.get('userCheckTime')),
-                                    'baseCheckTime': rec.get('baseCheckTime')})
+                                    'baseCheckTime': rec.get('baseCheckTime'),'planId2': rec.get('planId')})
                         OffDuty_list.append(data)
                 for onduy in OnDuty_list:
                     attendance = self.env['hr.attendance'].sudo().search(
                         [('employee_id', '=', onduy.get('employee_id')),
-                         ('baseCheckTime', '=', onduy.get('baseCheckTime'))])
+                         ('planId1', '=', onduy.get('planId1'))])
                     if not attendance:
                         self.env['hr.attendance'].sudo().create(OnDuty_list)
                 for offduy in OffDuty_list:
@@ -215,10 +216,10 @@ class HrAttendanceTransient(models.TransientModel):
                         if not attend.check_out:
                             off_check_out = datetime.strptime(offduy.get('check_out'), "%Y-%m-%d %H:%M:%S")
                             off_workDate = datetime.strptime(offduy.get('workDate'), "%Y-%m-%d %H:%M:%S")
-                            if int(offduy.get('planId')) == int(attend.planId) + 1:
-                                attend.write({'check_out': offduy.get('check_out')})
+                            if int(offduy.get('planId2')) == int(attend.planId1) + 1:
+                                attend.write({'check_out': offduy.get('check_out'),'planId2': offduy.get('planId2')})
                             elif off_check_out > attend.check_in and off_workDate < attend.workDate + timedelta(days=1):
-                                attend.write({'check_out': offduy.get('check_out')})
+                                attend.write({'check_out': offduy.get('check_out'),'planId2': offduy.get('planId2')})
 
                 if result.get('hasMore'):
                     return True

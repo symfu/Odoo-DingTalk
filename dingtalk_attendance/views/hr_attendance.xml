@@ -13,6 +13,8 @@
                 <field name="timeResult"/>
                 <field name="locationResult"/>
                 <field name="sourceType"/>
+                <field name="planId1"/>
+                <field name="planId2"/>
             </xpath>
         </field>
     </record>
