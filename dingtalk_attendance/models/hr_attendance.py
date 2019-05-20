@@ -150,7 +150,7 @@ class HrAttendanceTransient(models.TransientModel):
                             data = {
                                 'workDateFrom': str(work_data_from),  # 开始日期
                                 'workDateTo': str(work_data_to_mid),  # 结束日期
-                                'userIdList': user_list,  # 员工列表
+                                'userIdList': u,  # 员工列表
                                 'offset': offset,  
                                 'limit': limit, 
                             }
@@ -188,7 +188,7 @@ class HrAttendanceTransient(models.TransientModel):
                         'locationResult': rec.get('locationResult'),  # 考勤类型
                         'baseCheckTime': baseCheckTime,  # 上班基准时间
                         'sourceType': rec.get('sourceType'),  # 数据来源
-                        'planId1': rec.get('planId'),
+                        'planId1': rec.get('planId'),   # 班次ID
                         'check_in': self.get_time_stamp(rec.get('userCheckTime'))
 
                     }
@@ -204,6 +204,8 @@ class HrAttendanceTransient(models.TransientModel):
                         data.update({'check_out': self.get_time_stamp(rec.get('userCheckTime')),
                                     'baseCheckTime': rec.get('baseCheckTime'),'planId2': rec.get('planId')})
                         OffDuty_list.append(data)
+                OnDuty_list.sort(key=lambda x:(x['employee_id'],x['planId1']))
+                OffDuty_list.sort(key=lambda x:(x['employee_id'],x['planId2']))
                 for onduy in OnDuty_list:
                     attendance = self.env['hr.attendance'].sudo().search(
                         [('employee_id', '=', onduy.get('employee_id')),
