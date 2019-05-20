@@ -107,7 +107,7 @@ class DingtalkAttendanceListRecord(models.Model):
                         'userIds': user_list,  # 员工列表
                     }
                     self.send_post_dingtalk(data)
-                    check_data_from = check_data_to_mid
+                    check_data_from = check_data_to_mid + timedelta(days=1)
                     check_data_to_mid += delta
 
             elif isinstance(u, list):
@@ -122,7 +122,7 @@ class DingtalkAttendanceListRecord(models.Model):
                         'userIds': u,  # 员工列表
                     }
                     self.send_post_dingtalk(data)
-                    check_data_from = check_data_to_mid
+                    check_data_from = check_data_to_mid + timedelta(days=1)
                     check_data_to_mid += delta
 
         logging.info(">>>根据日期获取员工打卡详情信息结束...")

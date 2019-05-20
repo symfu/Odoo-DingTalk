@@ -197,12 +197,11 @@ class HrAttendanceTransient(models.TransientModel):
                     emp_id = self.env['hr.employee'].sudo().search([('din_id', '=', rec.get('userId'))])
                     data.update({'employee_id': emp_id[0].id if emp_id else False})
                     if rec.get('checkType') == 'OnDuty':
-                        data.update({'check_in': self.get_time_stamp(rec.get('userCheckTime')), 
-                                     'baseCheckTime': rec.get('baseCheckTime')})
+                        # data.update({'check_in': self.get_time_stamp(rec.get('userCheckTime')), 
+                        #              'baseCheckTime': rec.get('baseCheckTime')})
                         OnDuty_list.append(data)
                     else:
-                        data.update({'check_out': self.get_time_stamp(rec.get('userCheckTime')),
-                                    'baseCheckTime': rec.get('baseCheckTime'),'planId2': rec.get('planId')})
+                        data.update({'check_out': self.get_time_stamp(rec.get('userCheckTime')),'planId2': rec.get('planId')})
                         OffDuty_list.append(data)
                 OnDuty_list.sort(key=lambda x:(x['employee_id'],x['planId1']))
                 OffDuty_list.sort(key=lambda x:(x['employee_id'],x['planId2']))
@@ -213,7 +212,9 @@ class HrAttendanceTransient(models.TransientModel):
                     if not attendance:
                         self.env['hr.attendance'].sudo().create(OnDuty_list)
                 for offduy in OffDuty_list:
-                    attendance = self.env['hr.attendance'].sudo().search([('employee_id', '=', offduy.get('employee_id'))])
+                    # domain = [('employee_id', '=', offduy.get('employee_id')),('workDate', '<=', data.get('workDateTo')),('workDate', '>=', data.get('workDateFrom'))]
+                    domain = [('employee_id', '=', offduy.get('employee_id'))]
+                    attendance = self.env['hr.attendance'].sudo().search(domain)
                     for attend in attendance:
                         if not attend.check_out:
                             off_check_out = datetime.strptime(offduy.get('check_out'), "%Y-%m-%d %H:%M:%S")
