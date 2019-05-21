@@ -8,13 +8,14 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='check_out']" position="after">
                 <field name="ding_group_id"/>
-                <field name="recordId"/>
+                <!-- <field name="recordId"/> -->
                 <field name="workDate"/>
-                <field name="timeResult"/>
-                <field name="locationResult"/>
-                <field name="sourceType"/>
-                <field name="planId1"/>
-                <field name="planId2"/>
+                <field name="on_timeResult"/>
+                <field name="off_timeResult"/>
+                <field name="on_sourceType"/>
+                <field name="off_sourceType"/>
+                <field name="on_planId"/>
+                <field name="off_planId"/>
             </xpath>
         </field>
     </record>
@@ -28,13 +29,14 @@
                 <group>
                     <group>
                         <field name="ding_group_id"/>
-                        <field name="recordId"/>
+                        <!-- <field name="recordId"/> -->
                         <field name="workDate"/>
                     </group>
                     <group>
-                        <field name="timeResult"/>
-                        <field name="locationResult"/>
-                        <field name="sourceType"/>
+                        <field name="on_timeResult"/>
+                        <field name="off_timeResult"/>
+                        <field name="on_sourceType"/>
+                        <field name="off_sourceType"/>
                     </group>
                 </group>
             </xpath>
@@ -48,20 +50,21 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='department_id']" position="after">
                 <field name="ding_group_id"/>
-                <field name="recordId"/>
+                <!-- <field name="recordId"/> -->
                 <field name="workDate"/>
-                <field name="checkType"/>
-                <field name="timeResult"/>
-                <field name="locationResult"/>
-                <field name="sourceType"/>
+                <!-- <field name="checkType"/> -->
+                <field name="on_timeResult"/>
+                <field name="off_timeResult"/>
+                <field name="on_sourceType"/>
+                <field name="off_sourceType"/>
             </xpath>
             <xpath expr="//filter[@name='groupby_check_out']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//filter[@name='groupby_check_out']" position="after">
-                <filter name="groupby_timeResult" string="考勤结果" context="{'group_by': 'timeResult'}"/>
+                <!-- <filter name="groupby_timeResult" string="考勤结果" context="{'group_by': 'timeResult'}"/>
                 <filter name="groupby_locationResult" string="考勤位置" context="{'group_by': 'locationResult'}"/>
-                <filter name="groupby_sourceType" string="数据来源" context="{'group_by': 'sourceType'}"/>
+                <filter name="groupby_sourceType" string="数据来源" context="{'group_by': 'sourceType'}"/> -->
             </xpath>
         </field>
     </record>

@@ -36,15 +36,13 @@ class HrAttendance(models.Model):
         ('odoo', 'Odoo系统'),
     ]
     ding_group_id = fields.Many2one(comodel_name='dingtalk.simple.groups', string=u'钉钉考勤组')
-    recordId = fields.Char(string='记录ID')
     workDate = fields.Datetime(string=u'工作日')
-    checkType = fields.Selection(string=u'考勤类型', selection=[('OnDuty', '上班'), ('OffDuty', '下班')])
-    timeResult = fields.Selection(string=u'时间结果', selection=TimeResult)
-    locationResult = fields.Selection(string=u'位置结果', selection=LocationResult)
-    baseCheckTime = fields.Char(string=u'基准时间')
-    planId1 = fields.Char(string=u'班次1ID')
-    planId2 = fields.Char(string=u'班次2ID')
-    sourceType = fields.Selection(string=u'数据来源', selection=SourceType)
+    on_timeResult = fields.Selection(string=u'上班考勤结果', selection=TimeResult)
+    off_timeResult = fields.Selection(string=u'下班考勤结果', selection=TimeResult)
+    on_planId = fields.Char(string=u'上班班次ID')
+    off_planId = fields.Char(string=u'下班班次ID')
+    on_sourceType = fields.Selection(string=u'上班数据来源', selection=SourceType)
+    off_sourceType = fields.Selection(string=u'下班数据来源', selection=SourceType)
 
 
     @api.constrains('check_in', 'check_out', 'employee_id')
@@ -175,54 +173,72 @@ class HrAttendanceTransient(models.TransientModel):
         try:
             result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=15)
             result = json.loads(result.text)
-            logging.info(result)
+            # logging.info(result)
             if result.get('errcode') == 0:
                 OnDuty_list = list()
                 OffDuty_list = list()
                 for rec in result.get('recordresult'):
-                    baseCheckTime = rec.get('baseCheckTime')
                     data = {
-                        'recordId': rec.get('recordId'),
-                        'workDate': self.get_time_stamp(rec.get('workDate')),  # 工作日
-                        'timeResult': rec.get('timeResult'),  # 时间结果
-                        'locationResult': rec.get('locationResult'),  # 考勤类型
-                        'baseCheckTime': baseCheckTime,  # 上班基准时间
-                        'sourceType': rec.get('sourceType'),  # 数据来源
-                        'planId1': rec.get('planId'),   # 班次ID
-                        'check_in': self.get_time_stamp(rec.get('userCheckTime'))
-
-                    }
+                        'workDate': self.get_time_stamp(rec.get('workDate'))  # 工作日
+                            }
                     groups = self.env['dingtalk.simple.groups'].sudo().search([('group_id', '=', rec.get('groupId'))])
                     data.update({'ding_group_id': groups[0].id if groups else False})
                     emp_id = self.env['hr.employee'].sudo().search([('din_id', '=', rec.get('userId'))])
                     data.update({'employee_id': emp_id[0].id if emp_id else False})
                     if rec.get('checkType') == 'OnDuty':
-                        # data.update({'check_in': self.get_time_stamp(rec.get('userCheckTime')), 
-                        #              'baseCheckTime': rec.get('baseCheckTime')})
+                        data.update(
+                            {'check_in': self.get_time_stamp(rec.get('userCheckTime')), 
+                            'on_planId': rec.get('planId'),
+                            'on_timeResult': rec.get('timeResult'),
+                            'on_sourceType': rec.get('sourceType')
+                            })
                         OnDuty_list.append(data)
                     else:
-                        data.update({'check_out': self.get_time_stamp(rec.get('userCheckTime')),'planId2': rec.get('planId')})
+                        data.update({
+                            'check_out': self.get_time_stamp(rec.get('userCheckTime')),
+                            'off_planId': rec.get('planId'),
+                            'off_timeResult': rec.get('timeResult'),
+                            'off_sourceType': rec.get('sourceType')
+                            })
                         OffDuty_list.append(data)
-                OnDuty_list.sort(key=lambda x:(x['employee_id'],x['planId1']))
-                OffDuty_list.sort(key=lambda x:(x['employee_id'],x['planId2']))
+
+                OnDuty_list.sort(key=lambda x:(x['employee_id'],x['on_planId']))
                 for onduy in OnDuty_list:
                     attendance = self.env['hr.attendance'].sudo().search(
                         [('employee_id', '=', onduy.get('employee_id')),
-                         ('planId1', '=', onduy.get('planId1'))])
+                         ('on_planId', '=', onduy.get('on_planId'))])
                     if not attendance:
-                        self.env['hr.attendance'].sudo().create(OnDuty_list)
+                        self.env['hr.attendance'].sudo().create(onduy)
+                    else:
+                        attendance.sudo().write({
+                            'check_in': onduy.get('check_in'),
+                            'on_planId': onduy.get('on_planId'),
+                            'on_timeResult': onduy.get('on_timeResult'),
+                            'on_sourceType': onduy.get('on_sourceType')
+                            })
+
+                OffDuty_list.sort(key=lambda x:(x['employee_id'], x['off_planId']))
                 for offduy in OffDuty_list:
-                    # domain = [('employee_id', '=', offduy.get('employee_id')),('workDate', '<=', data.get('workDateTo')),('workDate', '>=', data.get('workDateFrom'))]
-                    domain = [('employee_id', '=', offduy.get('employee_id'))]
-                    attendance = self.env['hr.attendance'].sudo().search(domain)
+                    domain = [('employee_id', '=', offduy.get('employee_id')),('workDate', '=', offduy.get('workDate'))]
+                    attendance = self.env['hr.attendance'].sudo().search(domain).sorted(key=lambda r: r.on_planId)
                     for attend in attendance:
                         if not attend.check_out:
                             off_check_out = datetime.strptime(offduy.get('check_out'), "%Y-%m-%d %H:%M:%S")
-                            off_workDate = datetime.strptime(offduy.get('workDate'), "%Y-%m-%d %H:%M:%S")
-                            if int(offduy.get('planId2')) == int(attend.planId1) + 1:
-                                attend.write({'check_out': offduy.get('check_out'),'planId2': offduy.get('planId2')})
-                            elif off_check_out > attend.check_in and off_workDate < attend.workDate + timedelta(days=1):
-                                attend.write({'check_out': offduy.get('check_out'),'planId2': offduy.get('planId2')})
+                            if int(offduy.get('off_planId')) == int(attend.on_planId) + 1:
+                                attend.sudo().write(
+                                    {'check_out': offduy.get('check_out'),
+                                    'off_planId': offduy.get('off_planId'),
+                                    'off_timeResult': offduy.get('off_timeResult'),
+                                    'off_sourceType': offduy.get('off_sourceType')
+                                    })
+                            elif off_check_out > attend.check_in:
+
+                                attend.sudo().write({
+                                    'check_out': offduy.get('check_out'),
+                                    'off_planId': offduy.get('off_planId'),
+                                    'off_timeResult': offduy.get('off_timeResult'),
+                                    'off_sourceType': offduy.get('off_sourceType')
+                                    })
 
                 if result.get('hasMore'):
                     return True
