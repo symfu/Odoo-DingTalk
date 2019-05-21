@@ -19,7 +19,7 @@ class DingtalkReportTemplate(models.Model):
     icon_url = fields.Char(string='图标url')
     report_code = fields.Char(string='模板唯一标识')
     url = fields.Char(string='模板跳转url')
-    company_id = fields.Many2one(comodel_name='res.company',
+    company_id = fields.Many2one('res.company',
                                  string=u'公司', default=lambda self: self.env.user.company_id.id)
 
     @api.model
@@ -97,27 +97,19 @@ class DingtalkReportList(models.Model):
     report_id = fields.Char(string='钉钉日志ID')
     remark = fields.Char(string='备注')
     dept_name = fields.Char(string='部门')
-    # image1_url = fields.Char(string='图片1链接')
-    # image2_url = fields.Char(string='图片2链接')
     creator_name = fields.Char(string='日志创建人')
     create_time = fields.Char(string='日志创时间')
     read_num = fields.Char(string='已读数')
     comment_num = fields.Char(string='评论数')
     comment_user_num = fields.Char(string='去重后评论数')
     like_num = fields.Char(string='点赞数')
-    content_ids = fields.One2many(comodel_name='dingtalk.report.list.contents', inverse_name='rep_id',
-                               string=u'日志内容列表')
-    receiver_user_ids = fields.One2many(comodel_name='dingtalk.report.list.receivers', inverse_name='rep_id',
-                               string=u'接受日志用户列表')
-    follower_user_ids = fields.One2many(comodel_name='dingtalk.report.list.followers', inverse_name='rep_id',
-                               string=u'相关用户列表')
-    image_url_ids = fields.One2many(comodel_name='dingtalk.report.list.images', inverse_name='rep_id',
-                               string=u'照片列表')
-    comment_user_ids = fields.One2many(comodel_name='dingtalk.report.list.comments', inverse_name='rep_id',
-                               string=u'评论列表')
-    template_id = fields.Many2one(comodel_name='dingtalk.report.template', string=u'日志模板', required=True)
-    company_id = fields.Many2one(comodel_name='res.company',
-                                 string=u'公司', default=lambda self: self.env.user.company_id.id)            
+    content_ids = fields.One2many('dingtalk.report.list.contents', 'rep_id', string='日志内容列表')
+    receiver_user_ids = fields.One2many('dingtalk.report.list.receivers', 'rep_id', string='接受日志用户列表')
+    follower_user_ids = fields.One2many('dingtalk.report.list.followers', 'rep_id', string='相关用户列表')
+    image_url_ids = fields.One2many('dingtalk.report.list.images', 'rep_id', string='照片列表')
+    comment_user_ids = fields.One2many('dingtalk.report.list.comments', 'rep_id', string='评论列表')
+    template_id = fields.Many2one('dingtalk.report.template', string='日志模板', required=True)
+    company_id = fields.Many2one('res.company', string='公司', default=lambda self: self.env.user.company_id.id)            
             
 
     @api.multi
@@ -145,7 +137,6 @@ class DingtalkReportList(models.Model):
         
         url = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'get_report_statistics')]).value
         token = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'token')]).value
-        # report_ids = self.env['dingtalk.report.list'].browse(self._context.get('active_ids',[]))
         data = {
             'report_id': self.report_id,
         }
@@ -183,7 +174,6 @@ class DingtalkReportList(models.Model):
         
         url = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'get_report_receivers')]).value
         token = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'token')]).value
-        # report_ids = self.env['dingtalk.report.list'].browse(self._context.get('active_ids',[]))
 
         data = {
             'report_id': self.report_id,
@@ -228,7 +218,6 @@ class DingtalkReportList(models.Model):
         
         url = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'get_report_followers')]).value
         token = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'token')]).value
-        # report_ids = self.env['dingtalk.report.list'].browse(self._context.get('active_ids',[]))
         for ty in ['0','1','2']:
             data = {
                 'report_id': self.report_id,
@@ -281,8 +270,7 @@ class DingtalkReportList(models.Model):
         
         url = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'get_report_comments')]).value
         token = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'token')]).value
-        # report_ids = self.env['dingtalk.report.list'].browse(self._context.get('active_ids',[]))
-
+ 
         data = {
             'report_id': self.report_id,
         }
@@ -336,7 +324,6 @@ class DownloadDingtalkList(models.TransientModel):
         url = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'get_report_list')]).value
         token = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'token')]).value
         templates = self.env['dingtalk.report.template'].browse(self._context.get('active_ids',[]))
-        print('1111111111111111111111111111111111111',templates)
         for temp in templates:
             if temp:
                 data = {
@@ -443,12 +430,11 @@ class DingtalkReportListContents(models.Model):
         ('15', '外部联系人'),
     ]
 
-    # name = fields.Char(string='日志名', required=True)
     report_field_sort = fields.Char(string='排序')
     report_field_type = fields.Selection(string='字段类型', selection = FieldType)
     report_field_key = fields.Char(string='日志字段')
     report_field_value = fields.Char(string='填写内容')
-    rep_id = fields.Many2one(comodel_name='dingtalk.report.list', string='日志ID', required=True)
+    rep_id = fields.Many2one('dingtalk.report.list', string='日志ID', required=True)
 
 
 class DingtalkReportListReceivers(models.Model):
@@ -462,10 +448,9 @@ class DingtalkReportListReceivers(models.Model):
         ('2', '已点赞'),
     ]
 
-    # name = fields.Char(string='日志名', required=True)
-    emp_id = fields.Many2one(comodel_name='hr.employee', string='接收人', required=True)
+    emp_id = fields.Many2one('hr.employee', string='接收人', required=True)
     report_follower_type = fields.Selection(string='状态', selection=FollowerType)
-    rep_id = fields.Many2one(comodel_name='dingtalk.report.list', string='日志ID', required=True)
+    rep_id = fields.Many2one('dingtalk.report.list', string='日志ID', required=True)
 
 class DingtalkReportListFollowers(models.Model):
     _name = 'dingtalk.report.list.followers'
@@ -478,10 +463,9 @@ class DingtalkReportListFollowers(models.Model):
         ('2', '点赞人员'),
     ]
 
-    # name = fields.Char(string='日志名', required=True)
-    emp_id = fields.Many2one(comodel_name='hr.employee', string='关注者', required=True)
+    emp_id = fields.Many2one('hr.employee', string='关注者', required=True)
     report_follower_type = fields.Selection(string='类别', selection=FollowerType)
-    rep_id = fields.Many2one(comodel_name='dingtalk.report.list', string='日志ID', required=True)
+    rep_id = fields.Many2one('dingtalk.report.list', string='日志ID', required=True)
 
 
 class DingtalkReportListComments(models.Model):
@@ -490,10 +474,10 @@ class DingtalkReportListComments(models.Model):
     _rec_name = 'rep_id'
 
     # name = fields.Char(string='日志名', required=True)
-    emp_id = fields.Many2one(comodel_name='hr.employee', string='评论人', required=True)
+    emp_id = fields.Many2one('hr.employee', string='评论人', required=True)
     report_comment = fields.Char(string='评论内容')
     report_create_time = fields.Char(string='评论时间')
-    rep_id = fields.Many2one(comodel_name='dingtalk.report.list', string='日志ID', required=True)
+    rep_id = fields.Many2one('dingtalk.report.list', string='日志ID', required=True)
 
 
 class DingtalkReportListImages(models.Model):
@@ -501,19 +485,6 @@ class DingtalkReportListImages(models.Model):
     _description = "日志相关图片"
     _rec_name = 'rep_id'
 
-    # name = fields.Char(string='日志名', required=True)
     image_url = fields.Char(string='图片链接')
     image_sort = fields.Char(string='序号')
-    rep_id = fields.Many2one(comodel_name='dingtalk.report.list', string='日志ID', required=True)
-
-# class DingtalkReportListStatistics(models.Model):
-#     _name = 'dingtalk.report.list.statistics'
-#     _description = "日志统计数据"
-#     _rec_name = 'name'
-
-#     name = fields.Char(string='日志名', required=True)
-#     read_num = fields.Char(string='已读数')
-#     comment_num = fields.Char(string='评论数')
-#     comment_user_num = fields.Char(string='去重后评论数')
-#     like_num = fields.Char(string='点赞数')
-#     report_id = fields.Many2one(comodel_name='dingtalk.report.list', string='日志ID', required=True)
+    rep_id = fields.Many2one('dingtalk.report.list', string='日志ID', required=True)

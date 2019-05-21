@@ -20,7 +20,7 @@
             <field name="key">get_report_unreadcount</field>
             <field name="value">https://oapi.dingtalk.com/topapi/report/getunreadcount?access_token=</field>
         </record>
-         <!-- 钉钉2019-5-15新增4条API -->
+
         <record id="ali_dingtalk_system_conf_get_report_statistics" model="ali.dingtalk.system.conf">
             <field name="name">获取日志统计数据</field>
             <field name="key">get_report_statistics</field>
