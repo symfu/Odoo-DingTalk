@@ -58,8 +58,8 @@ class HrAttendanceTransient(models.TransientModel):
     _name = 'hr.attendance.tran'
     _description = '获取钉钉考勤信息'
 
-    start_date = fields.Date(string=u'开始日期', required=True)
-    stop_date = fields.Date(string=u'结束日期', required=True, default=str(fields.datetime.now()))
+    start_date = fields.Datetime(string=u'开始日期', required=True)
+    stop_date = fields.Datetime(string=u'结束日期', required=True, default=str(fields.datetime.now()))
     emp_ids = fields.Many2many(comodel_name='hr.employee', relation='hr_dingding_attendance_and_hr_employee_rel',
                                column1='attendance_id', column2='emp_id', string=u'员工', required=True)
     is_all_emp = fields.Boolean(string=u'全部员工')
@@ -110,8 +110,8 @@ class HrAttendanceTransient(models.TransientModel):
                     offset = 0
                     limit = 50
                     while True:
-                        work_data_from = datetime.strptime(str(res.start_date), "%Y-%m-%d")
-                        work_data_to = datetime.strptime(str(res.stop_date), "%Y-%m-%d")
+                        work_data_from = datetime.strptime(str(res.start_date), "%Y-%m-%d %H:%M:%S")
+                        work_data_to = datetime.strptime(str(res.stop_date), "%Y-%m-%d %H:%M:%S")
                         delta = timedelta(days=7)
                         if work_data_to < work_data_from  + delta:
                             work_data_to_mid = work_data_to
@@ -137,8 +137,8 @@ class HrAttendanceTransient(models.TransientModel):
                     offset = 0
                     limit = 50
                     while True:
-                        work_data_from = datetime.strptime(str(res.start_date), "%Y-%m-%d")
-                        work_data_to = datetime.strptime(str(res.stop_date), "%Y-%m-%d")
+                        work_data_from = datetime.strptime(str(res.start_date), "%Y-%m-%d %H:%M:%S")
+                        work_data_to = datetime.strptime(str(res.stop_date), "%Y-%m-%d %H:%M:%S")
                         delta = timedelta(days=7)
                         if work_data_to < work_data_from  + delta:
                             work_data_to_mid = work_data_to
@@ -260,3 +260,49 @@ class HrAttendanceTransient(models.TransientModel):
         timeArray = time.localtime(timeStamp)
         otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
         return otherStyleTime
+
+
+    @api.multi
+    def get_attendance_list_sync(self):
+
+        """
+        每隔1小时自动下载钉钉全员考勤记录
+        :param start_date:
+        :param end_date:
+        :param user:
+        :return:
+        """
+        logging.info(">>>开始获取员工打卡信息...")
+        emps = self.env['hr.employee'].search([('din_id', '!=', '')])
+        user_list = list()
+        n = 1
+        e_list = list()
+        for emp in emps:
+            if n <= 50:
+                e_list.append(emp.din_id)
+                n = n + 1
+            else:
+                user_list.append(e_list)
+                e_list = list()
+                e_list.append(emp.din_id)
+                n = 2
+        
+        logging.info(user_list)
+        for u in user_list:
+                offset = 0
+                limit = 50
+                while True:
+                    data = {
+                        'workDateFrom': str(fields.datetime.now() - timedelta(hours=1)),  # 开始日期
+                        'workDateTo': str(fields.datetime.now()),  # 结束日期
+                        'userIdList': u,  # 员工列表
+                        'offset': offset,  
+                        'limit': limit, 
+                    }
+                    has_more = self.send_post_dingtalk(data)
+
+                    if not has_more:
+                        break
+                    else:
+                        offset = offset + limit
+        logging.info(">>>根据日期获取员工打卡信息结束...")
