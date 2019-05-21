@@ -18,6 +18,7 @@
         'views/simplegroups.xml',
         'views/attendance_list.xml',
         'views/attendance_listrecord.xml',
+        'views/res_config_settings_views.xml',
         'views/hr_attendance.xml',
     ],
     'qweb': [
