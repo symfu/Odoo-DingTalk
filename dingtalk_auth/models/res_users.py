@@ -32,7 +32,7 @@ class ResUsers(models.Model):
                 values = {
                 'user_id': user.id
                 }
-                employee.write(values)
+                employee.sudo().write(values)
             else:
                 email = email_name + '@' + email_host
 
@@ -58,4 +58,4 @@ class ResUsers(models.Model):
                 values = {
                     'user_id': user.id
                 }
-                employee.write(values)
+                employee.sudo().write(values)

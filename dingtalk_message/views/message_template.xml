@@ -69,10 +69,10 @@
         <field name="view_mode">tree,form</field>
     </record>
 
-    <menuitem id="dingtalk_message_template_menu"
+    <!-- <menuitem id="dingtalk_message_template_menu"
               name="消息模板"
               parent="ali_dingtalk.message_menu"
               sequence="2"
-              action="dingtalk_message_template_action"/>
+              action="dingtalk_message_template_action"/> -->
 
 </odoo>

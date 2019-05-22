@@ -2,6 +2,6 @@
 
 from . import config
 from . import work_message
-from . import model_create
-from . import model_unlink
 from . import message_template
+# 群会话
+from . import dingtalk_chat 
