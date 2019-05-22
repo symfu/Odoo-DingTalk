@@ -29,7 +29,7 @@ class ResConfigSettings(models.TransientModel):
             'numbercall': -1,
             'interval_number': 60,
             'interval_type': 'minutes',
-            'code': "model.get_attendance_list_sync()",
+            'code': "env['hr.attendance.tran'].get_attendance_list_sync()",
         }
         if self.din_attendance:
             cron = self.env['ir.cron'].sudo().search([('name', '=', "钉钉-定时更新考勤")])
