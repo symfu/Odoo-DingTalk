@@ -9,46 +9,7 @@ from odoo.http import request
 
 _logger = logging.getLogger(__name__)
 
-class IndexController(http.Controller):
-
-    def send_request(self, method, request_url, data, retry=True, retry_count=0, retry_interval=3):
-        """
-        发送HTTP请求
-        """
-        headers = {
-            'Content-Type': 'application/json;charset=utf-8'
-        }
-        if method == 'GET':
-            res = requests.get(request_url, params=data, headers=headers, verify=False)
-        if method == 'POST':
-            res = requests.post(request_url, data=json.dumps(data), headers=headers, verify=False)
-        result = res.json()
-        if result.get('errcode') != 0:
-            if retry:
-                if retry_count <= 5:
-                    # 接口访问出错时重试
-                    time.sleep(retry_interval)
-                    return self.send_request(method, request_url, data, retry_count=retry_count + 1)
-                else:
-                    raise Exception('（钉钉接口错误）' + result.get('errmsg') + ' | （接口地址）' + request_url)
-            else:
-                raise Exception('（钉钉接口错误）' + result.get('errmsg') + ' | （接口地址）' + request_url)
-        else:
-            return result
-
-    def get_user_info_by_auth_code(self, auth_code):
-        """
-        通过AuthCode获取用户基本信息
-        """
-        method = 'GET'
-        url = request.env['ali.dingtalk.system.conf'].sudo().search([('key', '=', 'get_userid')]).value
-        token = request.env['ali.dingtalk.system.conf'].sudo().search([('key', '=', 'token')]).value
-        params = {
-            'access_token': token,
-            'code': auth_code
-        }
-        result = self.send_request(method, url, params)
-        return result
+class AutoLoginController(http.Controller):
 
     @http.route('/dingtalk/sign/in', type='http', auth='none')
     def sign_in(self, **kw):
@@ -67,23 +28,62 @@ class IndexController(http.Controller):
         """
         authCode = kw.get('authCode')
         if authCode:
-            user_info = self.get_user_info_by_auth_code(authCode)
-            logging.info(">>>获取的user_info为：{}".format(user_info))
-            employee = request.env['hr.employee'].sudo().search([('din_id', '=', user_info.get('userid'))])
-            if employee:
-                user = employee.user_id
-                if user:
-                    # 解密钉钉登录密码
-                    logging.info(u'>>>:解密钉钉登录密码')
-                    password = base64.b64decode(user.din_password)
-                    password = password.decode(encoding='utf-8', errors='strict')
-                    request.session.authenticate(request.session.db, user.login, password)
-                    return http.local_redirect('/web')
-                else:
-                    # 自动注册
-                    password = str(random.randint(100000, 999999))
-                    fail = request.env['res.users'].sudo().create_user_by_employee(employee.id, password)
-                    if not fail:
-                        return http.local_redirect('/dingtalk/sign/in')
+            get_result = self.get_user_info_by_auth_code(authCode)
+            if not get_result.get('state'):
+                return self._post_error_message(get_result.get('msg'))
+            userid = get_result.get('userid')
+            logging.info(">>>获取的user_id为：{}".format(userid))
+            if userid:
+                employee = request.env['hr.employee'].sudo().search([('din_id', '=', userid)])
+                if employee:
+                    user = employee.user_id
+                    if user:
+                        # 解密钉钉登录密码
+                        logging.info(u'>>>:解密钉钉登录密码')
+                        password = base64.b64decode(user.din_password)
+                        password = password.decode(encoding='utf-8', errors='strict')
+                        request.session.authenticate(request.session.db, user.login, password)
+                        return http.local_redirect('/web')
+                    else:
+                        # 自动注册
+                        password = str(random.randint(100000, 999999))
+                        fail = request.env['res.users'].sudo().create_user_by_employee(employee.id, password)
+                        if not fail:
+                            return http.local_redirect('/dingtalk/sign/in')
+                    return http.local_redirect('/web/login')
                 return http.local_redirect('/web/login')
-            return http.local_redirect('/web/login')
+
+        else:
+            return self._post_error_message("获取临时授权码失败,请检查钉钉开发者后台设置!")
+
+
+    def get_user_info_by_auth_code(self, auth_code):
+        """
+        根据返回的临时授权码获取用户信息
+        :param auth_code:
+        :return:
+        """
+        url = request.env['ali.dingtalk.system.conf'].sudo().search([('key', '=', 'get_userid')]).value
+        token = request.env['ali.dingtalk.system.conf'].sudo().search([('key', '=', 'token')]).value
+        url = "{}?access_token={}&code={}".format(url, token, auth_code)
+        try:
+            result = requests.get(url=url, timeout=5)
+            result = json.loads(result.text)
+            if result.get('errcode') != 0:
+                return {'state': False, 'msg': "钉钉接口错误:{}".format(result.get('errmsg'))}
+            else:
+                return {'state': True, 'userid': result.get('userid')}
+        except ReadTimeout:
+            return {'state': False, 'msg': "免登超时,请重试!"}
+        except Exception as e:
+            return {'state': False, 'msg': "登录失败,异常信息:{}".format(str(e))}
+
+
+    def _post_error_message(self, message):
+        """
+        返回错误消息
+        :param message:
+        :return:
+        """
+        data = {'message': message}
+        return request.render('dingtalk_auth.dingtalk_auto_login_message', data)

@@ -4,7 +4,7 @@
             #loading{
             margin: 100px auto 0 auto;
             width: 300px;
-            font-size: 18px;
+            font-size: 28px;
             text-align: center;
             }
         </style>
@@ -18,23 +18,36 @@
             var ua = window.navigator.userAgent.toLowerCase();
             // 检测UA
             if(ua.match(/DingTalk/i) == "dingtalk"){
-            // 获取CorpId
-            var corpId = document.querySelector("#corp-id").innerHTML.trim();
-            // 调用钉钉JSAPI
-            dd.runtime.permission.requestAuthCode({
-            corpId,
-            onSuccess: function(result) {
-            window.location.replace("/dingtalk/auth?authCode=" + result.code);
-            },
-            onFail: function(err) {
-            alert("系统错误，请使用账号密码登陆。");
-            window.location.replace("/web/login");
-            }
-            })
+                // 获取CorpId
+                var corpId = document.querySelector("#corp-id").innerHTML.trim();
+                // 调用钉钉JSAPI
+                dd.runtime.permission.requestAuthCode({
+                    corpId,
+                    onSuccess: function(result) {
+                    window.location.replace("/dingtalk/auth?authCode=" + result.code);
+                },
+                onFail: function(err) {
+                    alert("系统错误，请使用账号密码登陆。");
+                    window.location.replace("/web/login");
+                }
+                })
             } else {
-            window.location.replace("/web/login");
-            }
+                    window.location.replace("/web/login");
+                }
             }
         </script>
+    </template>
+
+    <template id="dingtalk_auth.dingtalk_auto_login_message">
+        <style>
+            #loading{
+            margin: 100px auto 0 auto;
+            width: 300px;
+            font-size: 40px;
+            text-align: center;
+            color: red;
+            }
+        </style>
+        <div id="loading">提示：<t t-esc="message"/></div>
     </template>
 </odoo>

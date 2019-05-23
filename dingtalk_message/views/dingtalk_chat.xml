@@ -1,5 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
+    <record id="dingtalk_message.add_dingtalk_chat_users_form_view" model="ir.ui.view">
+        <field name="name">添加群成员</field>
+        <field name="model">dingtalk.chat.user.model.add</field>
+        <field name="arch" type="xml">
+            <form>
+                <p>请选择要添加的用户,单次最大添加40人！</p>
+                <group>
+                    <group>
+                        <field name="on_user_ids" widget="many2many_tags" string="已有成员" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="user_ids" widget="many2many_tags"/>
+                    </group>
+                </group>
+                <footer>
+                    <button string="确认添加" name="add_chat_users" type="object" class="oe_highlight"/>
+                    <button string="告辞" class="btn btn-default" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="dingtalk_message.add_dingtalk_chat_users_action" model="ir.actions.act_window">
+        <field name="name">添加群成员</field>
+        <field name="res_model">dingtalk.chat.user.model.add</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="dingtalk_message.add_dingtalk_chat_users_form_view"/>
+        <field name="target">new</field>
+    </record>
+
+    <record id="dingtalk_message.del_dingtalk_chat_users_form_view" model="ir.ui.view">
+        <field name="name">删除群成员</field>
+        <field name="model">dingtalk.chat.user.model.del</field>
+        <field name="arch" type="xml">
+            <form>
+                <p>请选择要删除的用户，单次最大为40人</p>
+                <group>
+                    <group>
+                        <field name="old_user_ids" widget="many2many_tags" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="user_ids" widget="many2many_tags"/>
+                    </group>
+                </group>
+                <footer>
+                    <button string="确认删除" name="del_chat_users" type="object" class="oe_highlight"/>
+                    <button string="告辞" class="btn btn-default" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="dingtalk_message.del_dingtalk_chat_users_action" model="ir.actions.act_window">
+        <field name="name">删除群成员</field>
+        <field name="res_model">dingtalk.chat.user.model.del</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="dingtalk_message.del_dingtalk_chat_users_form_view"/>
+        <field name="target">new</field>
+    </record>
+
     <record id="dingtalk_chat_tree_view" model="ir.ui.view">
         <field name="name">群会话</field>
         <field name="model">dingtalk.chat</field>
@@ -26,9 +91,12 @@
                 <header>
                     <button name="create_dingtalk_chat" type="object" string="创建钉钉群" states="new" class="oe_highlight"
                             confirm="即将创建钉钉群会话,确认?"/>
-                    <button name="write_dingtalk_chat" type="object" string="更新钉钉群" states="normal" class="oe_highlight"/>
-                    <button name="add_chat_users" type="object" string="添加群成员" states="normal"/>
-                    <button name="del_chat_users" type="object" string="删除群成员" states="normal"/>
+                    <button name="write_dingtalk_chat" type="object" string="更新钉钉群" states="normal"
+                            class="oe_highlight"/>
+                    <button name="%(dingtalk_message.add_dingtalk_chat_users_action)d" type="action" string="添加群成员"
+                            states="normal"/>
+                    <button name="%(dingtalk_message.del_dingtalk_chat_users_action)d" type="action" string="删除群成员"
+                            states="normal"/>
                     <field name="state" widget="statusbar" modifiers="{'readonly': true}"/>
                 </header>
                 <sheet>
@@ -57,7 +125,8 @@
                     <notebook>
                         <page string="成员信息">
                             <group>
-                                <field name="useridlist" widget="many2many_tags"  attrs="{'readonly': [('state', '!=', 'new')]}"/>
+                                <field name="useridlist" widget="many2many_tags"
+                                       attrs="{'readonly': [('state', '!=', 'new')]}"/>
                             </group>
                         </page>
                     </notebook>
@@ -98,11 +167,14 @@
         <field name="arch" type="xml">
             <form>
                 <group>
-                    <p>系统将从钉钉中拉取已存在的群会话信息</p>
+                    <h4>根据钉钉API规定,获取群会话需要管理员有群会话Id, 若没有Id,那本功能就不适合!</h4>
+                </group>
+                <group>
+                    <field name="chat_id" placeholder="请输入群会话Id"/>
                 </group>
                 <footer>
-                    <button string="确认获取" name="get_chat_list" type="object" class="oe_highlight"/>
-                    <button string="取消" class="btn btn-default" special="cancel"/>
+                    <button string="任性获取" name="get_chat_info" type="object" class="oe_highlight"/>
+                    <button string="告辞" class="btn btn-default" special="cancel"/>
                 </footer>
             </form>
         </field>
