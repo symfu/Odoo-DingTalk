@@ -6,7 +6,7 @@
         <field name="tag">dingtalk_dashboard</field>
     </record>
 
-    <template id="dingtalk_dashboard_template" name="Dingtalk Dashboard Template" inherit_id="web.assets_backend">
+    <template id="dingtalk_dashboard_template" name="DingTalk Dashboard Template" inherit_id="web.assets_backend">
         <xpath expr="." position="inside">
             <link rel="stylesheet" type="text/scss" href="/dingtalk_dashboard/static/src/css/dashboard.css"/>
             <script type="text/javascript" src="/dingtalk_dashboard/static/src/js/dashboard.js"></script>

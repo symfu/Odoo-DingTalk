@@ -7,7 +7,7 @@ odoo.define('dingtalk.hrm.list.tree', function (require) {
     let viewRegistry = require('web.view_registry');
     let qweb = core.qweb;
 
-    let DingtalkHrmListController = ListController.extend({
+    let DingTalkHrmListController = ListController.extend({
         buttons_template: 'HrmListView.hrm_buttons',
         renderButtons: function () {
             this._super.apply(this, arguments);
@@ -26,11 +26,11 @@ odoo.define('dingtalk.hrm.list.tree', function (require) {
         }
     });
 
-    let GetDingtalkHrmListView = ListView.extend({
+    let GetDingTalkHrmListView = ListView.extend({
         config: _.extend({}, ListView.prototype.config, {
-            Controller: DingtalkHrmListController,
+            Controller: DingTalkHrmListController,
         }),
     });
 
-    viewRegistry.add('dingtalk_hrm_list_tree', GetDingtalkHrmListView);
+    viewRegistry.add('dingtalk_hrm_list_tree', GetDingTalkHrmListView);
 });

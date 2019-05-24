@@ -5,7 +5,7 @@ from odoo import api, fields, models
 _logger = logging.getLogger(__name__)
 
 
-class DingtalkApprovalControl(models.Model):
+class DingTalkApprovalControl(models.Model):
     _name = 'dingtalk.approval.control'
     _description = "审批单据关联"
     _rec_name = 'oa_model_id'

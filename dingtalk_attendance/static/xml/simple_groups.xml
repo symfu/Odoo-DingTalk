@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <template id="template" xml:space="preserve">
 
-    <t t-name="PullDingtalkSimpleGroups">
+    <t t-name="PullDingTalkSimpleGroups">
         <div class="alert alert-info">
             <p>即将从钉钉中获取考勤组信息！</p>
         </div>
 	</t>
 
-    <t t-name="GetDingtalkSimpleGroupsEmps">
+    <t t-name="GetDingTalkSimpleGroupsEmps">
         <div class="alert alert-info">
             <p>即将获取考勤组成员信息！</p>
         </div>

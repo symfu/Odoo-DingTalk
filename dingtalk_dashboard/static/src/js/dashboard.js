@@ -8,25 +8,25 @@ odoo.define('dingtalk.blackboard.info', function (require) {
     let AbstractAction = require('web.AbstractAction');
 
 
-    let DingtalkDashboard = AbstractAction.extend({
-        template: 'DingtalkDashboardInfo',
+    let DingTalkDashboard = AbstractAction.extend({
+        template: 'DingTalkDashboardInfo',
         setBlackboardData: function (data) {
             let self = this;
-            self.$el.find('#blackboard_list').html(QWeb.render("DingtalkDashboardInfoLine", {
+            self.$el.find('#blackboard_list').html(QWeb.render("DingTalkDashboardInfoLine", {
                 widget: self,
                 data: data,
             }));
         },
         setBlackboardFalseData: function (data) {
             let self = this;
-            self.$el.find('#blackboard_list').html(QWeb.render("DingtalkDashboardInfoLineFalse", {
+            self.$el.find('#blackboard_list').html(QWeb.render("DingTalkDashboardInfoLineFalse", {
                 widget: self,
                 data: data,
             }));
         },
         setBlackboardDataNull: function () {
             let self = this;
-            self.$el.find('#blackboard_list').html(QWeb.render("DingtalkDashboardInfoLineNull", {
+            self.$el.find('#blackboard_list').html(QWeb.render("DingTalkDashboardInfoLineNull", {
                 widget: self,
                 data: [],
             }));
@@ -80,6 +80,6 @@ odoo.define('dingtalk.blackboard.info', function (require) {
         },
     });
 
-    core.action_registry.add('dingtalk_dashboard', DingtalkDashboard);
-    return DingtalkDashboard;
+    core.action_registry.add('dingtalk_dashboard', DingTalkDashboard);
+    return DingTalkDashboard;
 });

@@ -69,7 +69,7 @@ odoo.define('dingtalk.simple.groups.button', function (require) {
                         close: true
                     }
                 ],
-                $content: $(QWeb.render('PullDingtalkSimpleGroups', {widget: this, data: []}))
+                $content: $(QWeb.render('PullDingTalkSimpleGroups', {widget: this, data: []}))
             }).open();
         },
         get_simple_emps_action: function () {
@@ -87,7 +87,7 @@ odoo.define('dingtalk.simple.groups.button', function (require) {
                         close: true
                     }
                 ],
-                $content: $(QWeb.render('GetDingtalkSimpleGroupsEmps', {widget: this, data: []}))
+                $content: $(QWeb.render('GetDingTalkSimpleGroupsEmps', {widget: this, data: []}))
             }).open();
         },
 

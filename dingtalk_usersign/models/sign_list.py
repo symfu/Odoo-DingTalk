@@ -10,7 +10,7 @@ from odoo import api, fields, models
 _logger = logging.getLogger(__name__)
 
 
-class DingtalkSignList(models.Model):
+class DingTalkSignList(models.Model):
     _name = 'dingtalk.signs.list'
     _description = "签到记录列表"
     _rec_name = 'emp_id'

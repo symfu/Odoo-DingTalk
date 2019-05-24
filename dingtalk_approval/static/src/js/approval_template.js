@@ -50,7 +50,7 @@ odoo.define('dingtalk_approval.pull.dingtalk.approval.button', function (require
                         close: true
                     }
                 ],
-                $content: $(QWeb.render('PullDingtalkApprovalTemplate', {widget: this, data: []}))
+                $content: $(QWeb.render('PullDingTalkApprovalTemplate', {widget: this, data: []}))
             }).open();
         },
 

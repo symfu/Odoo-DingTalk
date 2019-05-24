@@ -5,7 +5,7 @@ from odoo import api, fields, models
 _logger = logging.getLogger(__name__)
 
 
-class DingtalkPayConfig(models.Model):
+class DingTalkPayConfig(models.Model):
     _description = '系统参数列表'
     _name = 'ali.dingtalk.system.conf'
 

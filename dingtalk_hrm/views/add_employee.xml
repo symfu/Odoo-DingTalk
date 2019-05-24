@@ -25,7 +25,7 @@
     </record>
 
     <record id="dingtalk_add_employee_action" model="ir.actions.act_window">
-        <field name="name">Dingtalk Add Employee</field>
+        <field name="name">DingTalk Add Employee</field>
         <field name="res_model">dingtalk.add.employee</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>

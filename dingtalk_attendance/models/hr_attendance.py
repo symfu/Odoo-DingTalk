@@ -60,7 +60,7 @@ class HrAttendanceTransient(models.TransientModel):
 
     start_date = fields.Datetime(string=u'开始日期', required=True)
     stop_date = fields.Datetime(string=u'结束日期', required=True, default=str(fields.datetime.now()))
-    emp_ids = fields.Many2many(comodel_name='hr.employee', relation='hr_dingding_attendance_and_hr_employee_rel',
+    emp_ids = fields.Many2many(comodel_name='hr.employee', relation='hr_dingtalk_attendance_and_hr_employee_rel',
                                column1='attendance_id', column2='emp_id', string=u'员工', required=True)
     is_all_emp = fields.Boolean(string=u'全部员工')
 

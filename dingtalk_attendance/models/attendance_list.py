@@ -11,7 +11,7 @@ from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
 
 
-class DingtalkAttendanceList(models.Model):
+class DingTalkAttendanceList(models.Model):
     _name = 'dingtalk.attendance.list'
     _description = '打卡列表'
     _rec_name = 'emp_id'

@@ -1,4 +1,4 @@
-# OdooDingtalkConnector
+# OdooDingTalkConnector
 Odoo钉钉免登
 
 ## 安装步骤

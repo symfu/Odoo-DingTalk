@@ -10,7 +10,7 @@ from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
 
 
-class AddDingtalkEmployee(models.TransientModel):
+class AddDingTalkEmployee(models.TransientModel):
     _name = 'dingtalk.add.employee'
     _description = '添加待入职员工'
 

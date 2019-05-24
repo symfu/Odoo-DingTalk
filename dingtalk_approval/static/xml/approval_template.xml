@@ -11,7 +11,7 @@
         <!--</t>-->
     <!--</t>-->
 
-    <t t-name="PullDingtalkApprovalTemplate">
+    <t t-name="PullDingTalkApprovalTemplate">
         <div class="alert alert-info">
             <p>即将从钉钉中获取审批模板信息</p>
         </div>

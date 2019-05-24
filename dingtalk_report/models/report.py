@@ -10,7 +10,7 @@ from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
 
 
-class DingtalkReportTemplate(models.Model):
+class DingTalkReportTemplate(models.Model):
     _name = 'dingtalk.report.template'
     _description = "日志模板"
     _rec_name = 'name'
@@ -88,7 +88,7 @@ class DingtalkReportTemplate(models.Model):
         else:
             return {'state': False, 'number': 0, 'msg': 'None'}
 
-class DingtalkReportList(models.Model):
+class DingTalkReportList(models.Model):
     _name = 'dingtalk.report.list'
     _description = "日志列表"
     _rec_name = 'name'
@@ -304,7 +304,7 @@ class DingtalkReportList(models.Model):
         logging.info(">>>获取日志评论数据结束...")  
 
  
-class DownloadDingtalkList(models.TransientModel):
+class DownloadDingTalkList(models.TransientModel):
     _name = 'dingtalk.report.list.download'
     _description = "下载钉钉日志列表"
  
@@ -415,7 +415,7 @@ class DownloadDingtalkList(models.TransientModel):
             otherstyletime = time.strftime("%Y-%m-%d %H:%M:%S", timearray)
             return otherstyletime
 
-class DingtalkReportListContents(models.Model):
+class DingTalkReportListContents(models.Model):
     _name = 'dingtalk.report.list.contents'
     _description = "日志内容"
     _rec_name = 'rep_id'
@@ -437,7 +437,7 @@ class DingtalkReportListContents(models.Model):
     rep_id = fields.Many2one('dingtalk.report.list', string='日志ID', required=True)
 
 
-class DingtalkReportListReceivers(models.Model):
+class DingTalkReportListReceivers(models.Model):
     _name = 'dingtalk.report.list.receivers'
     _description = "日志接收人员列表"
     _rec_name = 'rep_id'
@@ -452,7 +452,7 @@ class DingtalkReportListReceivers(models.Model):
     report_follower_type = fields.Selection(string='状态', selection=FollowerType)
     rep_id = fields.Many2one('dingtalk.report.list', string='日志ID', required=True)
 
-class DingtalkReportListFollowers(models.Model):
+class DingTalkReportListFollowers(models.Model):
     _name = 'dingtalk.report.list.followers'
     _description = "日志相关人员列表"
     _rec_name = 'rep_id'
@@ -468,7 +468,7 @@ class DingtalkReportListFollowers(models.Model):
     rep_id = fields.Many2one('dingtalk.report.list', string='日志ID', required=True)
 
 
-class DingtalkReportListComments(models.Model):
+class DingTalkReportListComments(models.Model):
     _name = 'dingtalk.report.list.comments'
     _description = "日志评论列表"
     _rec_name = 'rep_id'
@@ -480,7 +480,7 @@ class DingtalkReportListComments(models.Model):
     rep_id = fields.Many2one('dingtalk.report.list', string='日志ID', required=True)
 
 
-class DingtalkReportListImages(models.Model):
+class DingTalkReportListImages(models.Model):
     _name = 'dingtalk.report.list.images'
     _description = "日志相关图片"
     _rec_name = 'rep_id'

@@ -5,7 +5,7 @@ from odoo import api, fields, models
 _logger = logging.getLogger(__name__)
 
 
-class DingtalkCallbackList(models.Model):
+class DingTalkCallbackList(models.Model):
     _name = 'dingtalk.users.callback.list'
     _description = "回调类型列表"
     _rec_name = 'name'

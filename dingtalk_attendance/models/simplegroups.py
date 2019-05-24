@@ -16,7 +16,7 @@ class HrEmployee(models.Model):
     din_group_id = fields.Many2one(comodel_name='dingtalk.simple.groups', string=u'考勤组')
 
 
-class DingtalkSimpleGroups(models.Model):
+class DingTalkSimpleGroups(models.Model):
     _name = 'dingtalk.simple.groups'
     _description = '考勤组'
 

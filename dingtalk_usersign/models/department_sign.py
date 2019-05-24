@@ -12,7 +12,7 @@ from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
 
 
-class DingtalkDepartmentSign(models.Model):
+class DingTalkDepartmentSign(models.Model):
     _name = 'dingtalk.department.signs'
     _description = "部门签到记录"
     _rec_name = 'department_id'
@@ -77,7 +77,7 @@ class DingtalkDepartmentSign(models.Model):
         return otherStyleTime
 
 
-class DingtalkDepartmentSignLine(models.Model):
+class DingTalkDepartmentSignLine(models.Model):
     _name = 'dingtalk.department.signs.line'
     _description = "部门签到记录列表"
     _rec_name = 'emp_id'

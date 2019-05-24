@@ -52,7 +52,7 @@ odoo.define('dingtalk.attendance.list.button', function (require) {
                         close: true
                     }
                 ],
-                $content: $(QWeb.render('PullDingtalkAttendanceList', {widget: this, data: []}))
+                $content: $(QWeb.render('PullDingTalkAttendanceList', {widget: this, data: []}))
             }).open();
         },
     });

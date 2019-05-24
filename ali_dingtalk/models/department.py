@@ -130,7 +130,7 @@ class HrDepartment(models.Model):
 
 
 # 未使用，但是不能删除，因为第一个版本创建的视图还存在
-class DingtalkSynchronousDepartment(models.TransientModel):
+class DingTalkSynchronousDepartment(models.TransientModel):
     _name = 'dingtalk.synchronous.department'
     _description = "同步钉钉部门功能模型"
 

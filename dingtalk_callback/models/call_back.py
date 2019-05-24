@@ -11,7 +11,7 @@ from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
 
 
-class DingtalkCallback(models.Model):
+class DingTalkCallback(models.Model):
     _name = 'dingtalk.users.callback'
     _inherit = ['mail.thread']
     _description = "钉钉回调管理"
@@ -134,7 +134,7 @@ class DingtalkCallback(models.Model):
         for res in self:
             if res.state == '01':
                 self.delete_call_back(res.token)
-        super(DingtalkCallback, self).unlink()
+        super(DingTalkCallback, self).unlink()
 
     @api.model
     def delete_call_back(self, call_token):

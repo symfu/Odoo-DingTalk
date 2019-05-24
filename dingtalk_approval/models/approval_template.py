@@ -9,7 +9,7 @@ from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
 
 
-class DingtalkApprovalTemplate(models.Model):
+class DingTalkApprovalTemplate(models.Model):
     _name = 'dingtalk.approval.template'
     _description = "审批模板"
     _rec_name = 'name'

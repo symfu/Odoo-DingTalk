@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <template id="ali_dingtalk_synchronous_template" name="Dingtalk Synchronous Template" inherit_id="web.assets_backend">
+    <template id="ali_dingtalk_synchronous_template" name="DingTalk Synchronous Template" inherit_id="web.assets_backend">
         <xpath expr="." position="inside">
             <script type="text/javascript" src="/ali_dingtalk/static/src/js/res_partner.js"></script>
             <script type="text/javascript" src="/ali_dingtalk/static/src/js/employee.js"></script>

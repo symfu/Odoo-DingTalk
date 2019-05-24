@@ -14,7 +14,7 @@
         </xpath>
     </template>
 
-    <template id="dingtalk_login.signup" name="Dingtalk Login login">
+    <template id="dingtalk_login.signup" name="DingTalk Login login">
         <t t-call="web.login_layout">
             <form class="oe_signup_form" role="form" method="post" t-if="not message">
                 <div id="login_container" class="login_container">

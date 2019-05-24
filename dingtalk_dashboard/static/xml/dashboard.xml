@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
 
-    <t t-name="DingtalkDashboardInfo">
+    <t t-name="DingTalkDashboardInfo">
         <div>
             <div>
                 <div class="container-fluid">
@@ -95,7 +95,7 @@
         </div>
     </t>
 
-    <t t-name="DingtalkDashboardInfoLine">
+    <t t-name="DingTalkDashboardInfoLine">
         <t t-foreach="data" t-as="line">
             <tr>
                 <td><b><t t-esc="line.gmt_create"/></b></td>
@@ -126,13 +126,13 @@
         </t>
     </t>
 
-    <t t-name="DingtalkDashboardInfoLineFalse">
+    <t t-name="DingTalkDashboardInfoLineFalse">
         <tr>
             <td colspan="4"><p class="mb-0 font-weight-bold"><t t-esc="data.msg"/></p></td>
         </tr>
     </t>
 
-    <t t-name="DingtalkDashboardInfoLineNull">
+    <t t-name="DingTalkDashboardInfoLineNull">
         <tr>
             <td colspan="4"><p class="mb-0 font-weight-bold">您没有公告消息...</p></td>
         </tr>

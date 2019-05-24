@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <template id="template" xml:space="preserve">
 
-    <t t-name="PullDingtalkAttendanceList">
+    <t t-name="PullDingTalkAttendanceList">
         <div class="report-properties">
             <div class="col-md-10">
                 <div class="form-group">

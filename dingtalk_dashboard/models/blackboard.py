@@ -8,7 +8,7 @@ from odoo import api, models
 _logger = logging.getLogger(__name__)
 
 
-class DingtalkBlackboard(models.TransientModel):
+class DingTalkBlackboard(models.TransientModel):
     _description = '获取公告信息'
     _name = 'dingtalk.blackboard'
 

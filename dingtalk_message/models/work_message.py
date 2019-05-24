@@ -20,7 +20,7 @@ MESSAGETYPE = [
 ]
 
 
-class DingtalkWorkMessage(models.Model):
+class DingTalkWorkMessage(models.Model):
     _name = 'dingtalk.work.message'
     _description = "钉钉工作消息"
     _inherit = ['mail.thread']
@@ -99,7 +99,7 @@ class DingtalkWorkMessage(models.Model):
             else:
                 dept_str = dept_str + ",{}".format(dept.dept_id.din_id)
         msg = {}
-        # 判断消息类型，很具不同的类型封装不同的消息体
+        # 判断消息类型，根据不同的类型封装不同的消息体
         if self.msg_type == 'action_card':
             """卡片类型"""
             # 判断按钮数，若只是一个就封装整体跳转，反之独立跳转
@@ -306,7 +306,7 @@ class DingtalkWorkMessage(models.Model):
             raise UserError("网络连接超时！")
 
 
-class DingtalkWorkMessageUserList(models.Model):
+class DingTalkWorkMessageUserList(models.Model):
     _name = 'dingtalk.work.message.user.list'
     _rec_name = 'emp_id'
     _description = "工作消息用户列表"
@@ -333,7 +333,7 @@ class DingtalkWorkMessageUserList(models.Model):
             self.department_id = self.emp_id.department_id.id
 
 
-class DingtalkWorkMessageDeptList(models.Model):
+class DingTalkWorkMessageDeptList(models.Model):
     _name = 'dingtalk.work.message.dept.list'
     _rec_name = 'dept_id'
     _description = "工作消息部门列表"

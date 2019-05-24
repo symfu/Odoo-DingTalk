@@ -9,7 +9,7 @@ from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
 
 
-class DingtalkHrmList(models.Model):
+class DingTalkHrmList(models.Model):
     _name = 'dingtalk.hrm.list'
     _description = "获取员工花名册"
     _rec_name = 'emp_id'
@@ -21,7 +21,7 @@ class DingtalkHrmList(models.Model):
                                  default=lambda self: self.env.user.company_id.id)
 
 
-class DingtalkHrmListline(models.Model):
+class DingTalkHrmListline(models.Model):
     _name = 'dingtalk.hrm.list.line'
     _description = "获取员工花名册明细"
     _rec_name = 'list_is'
@@ -35,7 +35,7 @@ class DingtalkHrmListline(models.Model):
     field_name = fields.Char(string='字段名')
 
 
-class GetDingtalkHrmList(models.TransientModel):
+class GetDingTalkHrmList(models.TransientModel):
     _name = 'dingtalk.get.hrm.list'
     _description = '获取钉钉员工花名册'
 

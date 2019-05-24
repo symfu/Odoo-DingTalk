@@ -10,7 +10,7 @@ from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
 
 
-class DingtalkHrmDimissionList(models.Model):
+class DingTalkHrmDimissionList(models.Model):
     _name = 'dingtalk.hrm.dimission.list'
     _description = "离职员工信息"
     _rec_name = 'emp_id'
@@ -44,7 +44,7 @@ class DingtalkHrmDimissionList(models.Model):
     company_id = fields.Many2one(comodel_name='res.company', string=u'公司', default=lambda self: self.env.user.company_id.id)
 
 
-class GetDingtalkHrmDimissionList(models.TransientModel):
+class GetDingTalkHrmDimissionList(models.TransientModel):
     _name = 'dingtalk.get.hrm.dimission.list'
     _description = '获取离职员工信息'
 

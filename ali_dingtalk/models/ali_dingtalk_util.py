@@ -10,7 +10,7 @@ from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
 
 
-class GetAliDingtalkToken(models.TransientModel):
+class GetAliDingTalkToken(models.TransientModel):
     _description = '获取钉钉token值'
     _name = 'ali.dingtalk.get.token'
 

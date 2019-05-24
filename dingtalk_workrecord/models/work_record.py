@@ -11,7 +11,7 @@ from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
 
 
-class DingtalkWorkRecord(models.Model):
+class DingTalkWorkRecord(models.Model):
     _name = 'dingtalk.work.record'
     _description = "钉钉待办事项"
     _inherit = ['mail.thread']
@@ -178,7 +178,7 @@ class DingtalkWorkRecord(models.Model):
         return otherStyleTime
 
 
-class DingtalkWorkRecordList(models.Model):
+class DingTalkWorkRecordList(models.Model):
     _name = 'dingtalk.work.record.list'
     _rec_name = 'title'
     _description = "待办事项表单"

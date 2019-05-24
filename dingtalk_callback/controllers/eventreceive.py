@@ -63,7 +63,7 @@ class CallBack(Home, http.Controller):
         # -------群会话事件----------
         elif event_type == 'chat_add_member' or event_type == 'chat_remove_member' or event_type == 'chat_quit' or \
                 event_type == 'chat_update_owner' or event_type == 'chat_update_title' or event_type == 'chat_disband':
-            request.env['dingtalk.chat'].sudo().process_dingding_chat_onchange(msg)
+            request.env['dingtalk.chat'].sudo().process_dingtalk_chat_onchange(msg)
         # 返回加密结果
         return self.result_success(call_back.aes_key, call_back.token, din_corpId)
 

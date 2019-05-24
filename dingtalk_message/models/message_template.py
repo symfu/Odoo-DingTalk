@@ -7,7 +7,7 @@ from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
 
 
-class DingtalkMessageTemplateLine(models.Model):
+class DingTalkMessageTemplateLine(models.Model):
     _name = 'dingtalk.message.template.line'
     _description = "消息模板列表"
     _rec_name = 'template_id'
@@ -33,7 +33,7 @@ class DingtalkMessageTemplateLine(models.Model):
         }
 
 
-class DingtalkMessageTemplate(models.Model):
+class DingTalkMessageTemplate(models.Model):
     _name = 'dingtalk.message.template'
     _description = "消息模板"
     _rec_name = 'name'

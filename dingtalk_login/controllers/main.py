@@ -16,7 +16,7 @@ import odoo
 _logger = logging.getLogger(__name__)
 
 
-class DingtalkLogin(Home, http.Controller):
+class DingTalkLogin(Home, http.Controller):
 
     @http.route('/web/dingtalk_login', type='http', auth='public', website=True, sitemap=False)
     def web_dingtalk_login(self, *args, **kw):

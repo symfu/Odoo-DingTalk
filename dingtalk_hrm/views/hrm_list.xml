@@ -80,7 +80,7 @@
         </record>
 
         <record id="dingtalk_get_hrm_list_action" model="ir.actions.act_window">
-            <field name="name">Dingtalk Get Hrm List</field>
+            <field name="name">DingTalk Get Hrm List</field>
             <field name="res_model">dingtalk.get.hrm.list</field>
             <field name="view_mode">form</field>
             <field name="target">new</field>

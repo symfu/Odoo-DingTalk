@@ -237,7 +237,7 @@ class ResPartner(models.Model):
 
 
 # 未使用，但是不能删除，因为第一个版本创建的视图还存在
-class DingtalkSynchronous(models.TransientModel):
+class DingTalkSynchronous(models.TransientModel):
     _name = 'dingtalk.synchronous.extcontact'
     _description = "同步钉钉联系人功能模块"
 

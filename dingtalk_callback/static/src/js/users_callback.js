@@ -49,7 +49,7 @@ odoo.define('dingtalk.user.callback.button', function (require) {
                         close: true
                     }
                 ],
-                $content: $(QWeb.render('PullDingtalkUserCallback', {widget: this, data: []}))
+                $content: $(QWeb.render('PullDingTalkUserCallback', {widget: this, data: []}))
             }).open();
         },
     });

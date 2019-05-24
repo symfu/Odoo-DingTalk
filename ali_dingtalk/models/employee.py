@@ -96,7 +96,7 @@ class HrEmployee(models.Model):
                 raise UserError("上传员工至钉钉超时！")
 
     @api.constrains('user_id')
-    def constrains_dingding_user_id(self):
+    def constrains_dingtalk_user_id(self):
         """当选择了相关用户时，需要检查系统用户是否只对应一个员工"""
         
         if self.user_id:
@@ -210,7 +210,7 @@ class HrEmployee(models.Model):
 
 
 # 未使用，但是不能删除，因为第一个版本创建的视图还存在
-class DingtalkSynchronousEmployee(models.TransientModel):
+class DingTalkSynchronousEmployee(models.TransientModel):
     _name = 'dingtalk.synchronous.employee'
     _description = "同步钉钉部门员工功能模型"
 

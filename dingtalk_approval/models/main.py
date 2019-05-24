@@ -9,7 +9,7 @@ from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
 
 
-class DingtalkApprovalMain(models.Model):
+class DingTalkApprovalMain(models.Model):
     _name = 'dingtalk.approval.main'
     _inherit = ['mail.thread']
     _description = "审批表单基类"
@@ -50,7 +50,7 @@ class DingtalkApprovalMain(models.Model):
         for res in self:
             if res.oa_state != '00':
                 raise UserError('非草稿单据不能删除!')
-        super(DingtalkApprovalMain, self).unlink()
+        super(DingTalkApprovalMain, self).unlink()
 
     @api.model
     def _summit_din_approval(self, process_code, user_id, dept_id, approvers, cc_list, form_values):
@@ -146,7 +146,7 @@ class DingtalkApprovalMain(models.Model):
         return True
 
 
-class DingtalkApproversUsers(models.Model):
+class DingTalkApproversUsers(models.Model):
     _name = 'dingtalk.approval.users'
     _description = u"审批人列表"
     _rec_name = 'emp_id'
@@ -170,7 +170,7 @@ class DingtalkApproversUsers(models.Model):
         self.number = self.sequence + 1
 
 
-class DingtalkApproversCc(models.Model):
+class DingTalkApproversCc(models.Model):
     _name = 'dingtalk.approval.cc'
     _description = u"抄送人列表"
     _rec_name = 'emp_id'

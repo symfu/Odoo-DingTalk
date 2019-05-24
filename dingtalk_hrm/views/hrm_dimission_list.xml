@@ -51,7 +51,7 @@
     </record>
 
     <record id="dingtalk_get_hrm_dimission_list_action" model="ir.actions.act_window">
-        <field name="name">Dingtalk Get Hrm Dimission List</field>
+        <field name="name">DingTalk Get Hrm Dimission List</field>
         <field name="res_model">dingtalk.get.hrm.dimission.list</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <template id="template" xml:space="preserve">
 
-    <t t-name="PullDingtalkUserCallback">
+    <t t-name="PullDingTalkUserCallback">
         <div class="alert alert-info">
             <p>拉取钉钉服务器中的回调列表！</p>
         </div>

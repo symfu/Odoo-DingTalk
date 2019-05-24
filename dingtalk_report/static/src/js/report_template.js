@@ -50,7 +50,7 @@ odoo.define('dingtalk_report.pull.dingtalk.report.template.button', function (re
                         close: true
                     }
                 ],
-                $content: $(QWeb.render('PullDingtalkReportTemplate', {widget: this, data: []}))
+                $content: $(QWeb.render('PullDingTalkReportTemplate', {widget: this, data: []}))
             }).open();
         },
 

@@ -11,7 +11,7 @@ from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
 
 
-class DingtalkCalendarEvent(models.Model):
+class DingTalkCalendarEvent(models.Model):
     _inherit = 'calendar.event'
 
     number = fields.Char(string='日程编号', copy=False)
@@ -26,7 +26,7 @@ class DingtalkCalendarEvent(models.Model):
         if auto_calendar_event:
             values['dingtalk_calendar_id'] = self.create_dingtalk_calendar(values)
             self.sudo().message_post(body=u"已同步上传至钉钉日程", message_type='notification')
-        return super(DingtalkCalendarEvent, self).create(values)
+        return super(DingTalkCalendarEvent, self).create(values)
 
     @api.model
     def create_dingtalk_calendar(self, val):
