@@ -16,6 +16,9 @@
         <menuitem name="设置" id="ali_dingtalk.configure_menu"
                   parent="ali_dingtalk.main_menu" sequence="100"
         />
+        <menuitem name="关于" id="ali_dingtalk.about_menu"
+                  parent="ali_dingtalk.main_menu" sequence="101"
+        />
 
     </data>
 </odoo>

@@ -31,6 +31,10 @@ class DingTalkChat(models.Model):
                                   column1='chat_id', column2='emp_id', string=u'群成员', required=True)
     state = fields.Selection(string=u'状态', selection=[('new', '新建'), ('normal', '已建立'), ('close', '解散'), ],
                              default='new', track_visibility='onchange')
+    channel_ids = fields.Many2many(comodel_name='mail.channel', relation='dingtalk_chat_and_mail_channel_rel',
+                                   column1='chat_id', column2='mail_id', string=u'关注频道')
+    model_ids = fields.Many2many(comodel_name='ir.model', relation='dingtalk_chat_and_ir_model_rel',
+                                 column1='chat_id', column2='model_id', string=u'关联模型')
 
     @api.multi
     def create_dingtalk_chat(self):
@@ -314,6 +318,32 @@ class DingTalkSendChatMessage(models.TransientModel):
         except ReadTimeout:
             raise UserError("网络连接超时！")
 
+    @api.model
+    def send_message(self, ding_chat, body):
+        """
+        发送群会话消息
+        :return:
+        """
+        url = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'chat_send')]).value
+        token = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'token')]).value
+        data = {
+            'chatid': ding_chat.chat_id,
+            'msg': {
+                "msgtype": "markdown",
+                "markdown": {
+                    "title": "来自ERP的备注消息",
+                    "text": body
+                }
+            },
+        }
+        headers = {'Content-Type': 'application/json'}
+        try:
+            result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=2)
+            result = json.loads(result.text)
+            logging.info(">>>返回结果{}".format(result))
+        except ReadTimeout:
+            logging.info("发送群会话:'{}'时，网络连接超时！".format(ding_chat.name))
+
 class DingTalkChatList(models.TransientModel):
     _name = 'get.dingtalk.chat.list'
     _description = "获取已存在的群会话"
@@ -344,9 +374,9 @@ class DingTalkChatList(models.TransientModel):
                         raise UserError("返回的群管理员在Odoo系统中不存在!")
                     user_list = list()
                     for userlist in chat_info.get('useridlist'):
-                        employee = self.env['hr.employee'].sudo().search([('din_id', '=', userlist)])
-                        if employee:
-                            user_list.append(employee[0].id)
+                        user = self.env['hr.employee'].sudo().search([('din_id', '=', userlist)])
+                        if user:
+                            user_list.append(user[0].id)
                     data = {
                         'chat_id': chat_info.get('chatid'),
                         'name': chat_info.get('name'),

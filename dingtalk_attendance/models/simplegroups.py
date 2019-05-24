@@ -106,7 +106,7 @@ class DingTalkSimpleGroups(models.Model):
                             """UPDATE hr_employee SET din_group_id = {} WHERE id = {}""".format(groups[0].id, emp.id))
                     else:
                         pass
-                        # return {'state': False, 'msg': '考勤组有更新,请先拉取最新的考勤组!'}
+                        # return {'state': False, 'msg': '考勤组有更新,请先获取最新的考勤组!'}
                 else:
                     return {'state': False, 'msg': '请求失败,原因为:{}'.format(result.get('errmsg'))}
             except ReadTimeout:

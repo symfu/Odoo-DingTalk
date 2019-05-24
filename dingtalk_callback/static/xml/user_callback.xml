@@ -3,7 +3,7 @@
 
     <t t-name="PullDingTalkUserCallback">
         <div class="alert alert-info">
-            <p>拉取钉钉服务器中的回调列表！</p>
+            <p>获取钉钉服务器中的回调列表！</p>
         </div>
 	</t>
 

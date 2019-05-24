@@ -29,7 +29,7 @@ odoo.define('dingtalk_approval.pull.dingtalk.approval.button', function (require
             let tree_model = this.modelName;
             if (tree_model == 'dingtalk.approval.template') {
                 let but = "<button type=\"button\" t-if=\"widget.modelName == 'dingtalk.approval.template'\" class=\"btn btn-secondary o_pull_dingtalk_approval_template\">" +
-                    "拉取审批模板</button>";
+                    "获取审批模板</button>";
                 let button2 = $(but).click(this.proxy('open_action'));
                 this.$buttons.append(button2);
             }
@@ -37,11 +37,11 @@ odoo.define('dingtalk_approval.pull.dingtalk.approval.button', function (require
         },
         open_action: function () {
             new Dialog(this, {
-                title: "拉取审批模板",
+                title: "获取审批模板",
                 size: 'medium',
                 buttons: [
                     {
-                        text: "开始拉取",
+                        text: "开始获取",
                         classes: 'btn-primary',
                         close: true,
                         click: save_data

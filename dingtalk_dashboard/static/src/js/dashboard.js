@@ -9,7 +9,7 @@ odoo.define('dingtalk.blackboard.info', function (require) {
 
 
     let DingTalkDashboard = AbstractAction.extend({
-        template: 'DingTalkDashboardInfo',
+        template: 'DingTalkDashboardMain',
         setBlackboardData: function (data) {
             let self = this;
             self.$el.find('#blackboard_list').html(QWeb.render("DingTalkDashboardInfoLine", {
@@ -61,7 +61,8 @@ odoo.define('dingtalk.blackboard.info', function (require) {
                 self.getUserApprovalNumber(result);
             });
 
-            let def = rpc.query({
+            // 获取公告
+            rpc.query({
                 model: 'dingtalk.blackboard',
                 method: 'get_blackboard_by_user',
                 args: [],

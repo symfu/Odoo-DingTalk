@@ -45,7 +45,7 @@ odoo.define('dingtalk.simple.groups.button', function (require) {
             let $buttons = this._super.apply(this, arguments);
             let tree_model = this.modelName;
             if (tree_model == 'dingtalk.simple.groups') {
-                let but = "<button type=\"button\" t-if=\"widget.modelName == 'dingtalk.simple.groups'\" class=\"btn btn-primary o_pull_dingtalk_simple_groups\">拉取考勤组</button>";
+                let but = "<button type=\"button\" t-if=\"widget.modelName == 'dingtalk.simple.groups'\" class=\"btn btn-primary o_pull_dingtalk_simple_groups\">获取考勤组</button>";
                 let button2 = $(but).click(this.proxy('open_simple_action'));
                 this.$buttons.append(button2);
                 let but3 = "<button type=\"button\" t-if=\"widget.modelName == 'dingtalk.simple.groups'\" class=\"btn btn-secondary\">获取考勤组成员</button>";
@@ -56,7 +56,7 @@ odoo.define('dingtalk.simple.groups.button', function (require) {
         },
         open_simple_action: function () {
             new Dialog(this, {
-                title: "拉取考勤",
+                title: "获取考勤",
                 size: 'medium',
                 buttons: [
                     {

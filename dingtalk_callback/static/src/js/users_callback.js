@@ -36,7 +36,7 @@ odoo.define('dingtalk.user.callback.button', function (require) {
         },
         pull_dingtalk_user_callback: function () {
             new Dialog(this, {
-                title: "拉取回调列表",
+                title: "获取回调列表",
                 size: 'medium',
                 buttons: [
                     {

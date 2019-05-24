@@ -29,7 +29,7 @@ odoo.define('dingtalk_report.pull.dingtalk.report.template.button', function (re
             let tree_model = this.modelName;
             if (tree_model == 'dingtalk.report.template') {
                 let but = "<button type=\"button\" t-if=\"widget.modelName == 'dingtalk.report.template'\" class=\"btn btn-secondary\">" +
-                    "拉取日志模板</button>";
+                    "获取日志模板</button>";
                 let button2 = $(but).click(this.proxy('open_download_report_tmplate_action'));
                 this.$buttons.append(button2);
             }
@@ -37,11 +37,11 @@ odoo.define('dingtalk_report.pull.dingtalk.report.template.button', function (re
         },
         open_download_report_tmplate_action: function () {
             new Dialog(this, {
-                title: "拉取日志模板",
+                title: "获取日志模板",
                 size: 'medium',
                 buttons: [
                     {
-                        text: "开始拉取",
+                        text: "开始获取",
                         classes: 'btn-primary',
                         close: true,
                         click: save_data

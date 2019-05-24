@@ -8,3 +8,4 @@ access_dingtalk_work_oa_message_list,dingtalk.work.oa.message.list,model_dingtal
 access_dingtalk_message_template,dingtalk.message.template,model_dingtalk_message_template,base.group_user,1,1,1,1
 access_dingtalk_message_template_line,dingtalk.message.template.line,model_dingtalk_message_template_line,base.group_user,1,1,1,1
 access_dingtalk_chat,dingtalk.chat,model_dingtalk_chat,base.group_user,1,1,1,1
+access_dingtalk_message_template,dingtalk_message_template,model_dingtalk_message_template,base.group_user,1,1,1,1

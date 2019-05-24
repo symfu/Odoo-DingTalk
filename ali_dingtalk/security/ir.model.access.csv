@@ -1,2 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_ali_dingtalk_system_conf,ali.dingtalk.system.conf,model_ali_dingtalk_system_conf,base.group_user,1,1,1,0
+access_dingtalk_user_feedback,dingtalk.user.feedback,model_dingtalk_user_feedback,base.group_user,1,1,1,0

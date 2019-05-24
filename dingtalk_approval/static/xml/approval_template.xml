@@ -5,7 +5,7 @@
         <!--<t t-jquery="button.o_list_button_save" t-operation="after">-->
             <!--<button type="button" t-if="widget.modelName == 'dingtalk.approval.template'"-->
                     <!--class="btn btn-secondary o_pull_dingtalk_approval_template">-->
-                <!--拉取审批模板-->
+                <!--获取审批模板-->
             <!--</button>-->
 
         <!--</t>-->
