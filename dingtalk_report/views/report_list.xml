@@ -155,6 +155,7 @@
             <tree default_order="id desc">
                 <field name="emp_id"/>
                 <field name="report_comment"/>
+                <field name="report_create_time"/>
             </tree>
         </field>
     </record>

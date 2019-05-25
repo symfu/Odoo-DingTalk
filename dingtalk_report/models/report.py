@@ -292,10 +292,8 @@ class DingTalkReportList(models.Model):
                                     'rep_id': self.id,
                                     }
                             report_comment = self.env['dingtalk.report.list.comments'].search(
-                                    [('rep_id', '=', self.id), ('emp_id', '=', emp.id)])
-                            if report_comment:
-                                report_comment.write(data)
-                            else:
+                                    [('rep_id', '=', self.id), ('emp_id', '=', emp.id), ('report_create_time', '=', comment.get('create_time'))])
+                            if not report_comment:
                                 self.env['dingtalk.report.list.comments'].create(data)
             else:
                 raise UserError('获取日志评论数据失败，详情为:{}'.format(result.get('errmsg')))
@@ -475,7 +473,7 @@ class DingTalkReportListComments(models.Model):
 
     # name = fields.Char(string='日志名', required=True)
     emp_id = fields.Many2one('hr.employee', string='评论人', required=True)
-    report_comment = fields.Char(string='评论内容')
+    report_comment = fields.Text(string='评论内容')
     report_create_time = fields.Char(string='评论时间')
     rep_id = fields.Many2one('dingtalk.report.list', string='日志ID', required=True)
 
