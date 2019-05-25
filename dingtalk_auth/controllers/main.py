@@ -11,8 +11,8 @@ _logger = logging.getLogger(__name__)
 
 class AutoLoginController(http.Controller):
 
-    @http.route('/dingtalk/sign/in', type='http', auth='none')
-    def sign_in(self, **kw):
+    @http.route('/dingtalk/auto/login/in', type='http', auth='none')
+    def dingtalk_auto_login(self, **kw):
         """
         钉钉免登入口
         """
@@ -21,7 +21,7 @@ class AutoLoginController(http.Controller):
         }
         return request.render('dingtalk_auth.sign_in', data)
 
-    @http.route('/dingtalk/auth', type='http', auth='none')
+    @http.route('/dingtalk/auto/login', type='http', auth='none')
     def auth(self, **kw):
         """
         钉钉免登认证
