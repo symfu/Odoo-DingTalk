@@ -4,6 +4,7 @@ import json
 import logging
 import time, random
 import requests
+from requests import ReadTimeout
 from odoo import http
 from odoo.http import request
 
@@ -19,7 +20,7 @@ class AutoLoginController(http.Controller):
         data = {
             'corp_id': request.env['ir.config_parameter'].sudo().get_param('ali_dingtalk.din_corpId')
         }
-        return request.render('dingtalk_auth.sign_in', data)
+        return request.render('dingtalk_auth.dingtalk_auto_login', data)
 
     @http.route('/dingtalk/auto/login', type='http', auth='none')
     def auth(self, **kw):
@@ -49,7 +50,7 @@ class AutoLoginController(http.Controller):
                         password = str(random.randint(100000, 999999))
                         fail = request.env['res.users'].sudo().create_user_by_employee(employee.id, password)
                         if not fail:
-                            return http.local_redirect('/dingtalk/sign/in')
+                            return http.local_redirect('/dingtalk/auto/login/in')
                     return http.local_redirect('/web/login')
                 return http.local_redirect('/web/login')
 
