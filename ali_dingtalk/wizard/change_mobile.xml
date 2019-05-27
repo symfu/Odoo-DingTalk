@@ -7,12 +7,19 @@
         <field name="arch" type="xml">
             <form string="更换手机号">
                 <sheet>
-                    <group>
-                        <field name="name"/>
-                        <field name="din_id"/>
-                        <field name="dep_din_id"/>
-                        <field name="old_mobile"/>
-                        <field name="new_mobile"/>
+                    <group> 
+                        <group> 
+                            <field name="old_mobile"/>
+                            <field name="new_mobile"/>
+                        </group>
+                        <group>
+                            <field name="name"/>
+                            <field name="din_id"/>
+                            <field name="din_jobnumber"/>
+                            <field name="din_position"/>
+                            <field name="din_hiredDate"/>
+                            <field name="dep_din_id"/>
+                        </group>
                     </group>
                 </sheet>
                 <footer>

@@ -4,6 +4,7 @@ import logging
 import requests
 import json
 from requests import ReadTimeout
+from datetime import datetime
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 from odoo.addons.iap.models import iap
@@ -17,7 +18,11 @@ class ChangeMobile(models.TransientModel):
 
     name = fields.Char('员工姓名', required=True, readonly= True)
     din_id = fields.Char('钉钉ID', required=True, readonly= True)
+    din_jobnumber = fields.Char(string='工号', readonly= True)
+    din_position = fields.Char(string='职务', readonly= True)
+    din_hiredDate = fields.Date(string='入职时间', readonly= True)
     dep_din_id = fields.Char('所属部门ID列表', required=True, readonly= True)
+    
     old_mobile = fields.Char('原手机号', readonly= True)
     new_mobile = fields.Char('新手机号', required=True)
 
@@ -40,31 +45,19 @@ class ChangeMobile(models.TransientModel):
     @api.model
     def default_get(self, fields):
         result = super(ChangeMobile, self).default_get(fields)
-
         active_model = self.env.context.get('active_model')
         model = self.env[active_model]
         records = self._get_records(model)
-        userid = []
-        name = []
-        old_mobile = []
-        department = []
         for record in records:
-            din_id = self._sanitization(record,'din_id')
-            if din_id:
-                userid.append(din_id)
-            emp = self._sanitization(record,'name')
-            if emp:
-                name.append(emp)
-            dep = self._sanitization(record,'department_id').din_id
-            if dep:
-                department.append(dep)
-            mobile = self._sanitization(record,'mobile_phone')
-            if mobile:
-                old_mobile.append(mobile)
-        result['din_id'] = ', '.join(userid)
-        result['name'] = ', '.join(name)
-        result['dep_din_id'] = ', '.join(department)
-        result['old_mobile'] = ', '.join(old_mobile)
+            result = {
+                'name': self._sanitization(record,'name'),
+                'din_id': self._sanitization(record,'din_id'),
+                'din_jobnumber': self._sanitization(record,'din_jobnumber'),
+                'din_position': self._sanitization(record,'job_title'),
+                'din_hiredDate': self._sanitization(record,'din_hiredDate'),
+                'dep_din_id': self._sanitization(record,'department_id').din_id,
+                'old_mobile': self._sanitization(record,'mobile_phone')
+            }
         return result
 
    
@@ -85,15 +78,17 @@ class ChangeMobile(models.TransientModel):
             'department': [self.dep_din_id],
             'mobile': self.new_mobile,  # 手机
         }
-        old_data = data
+
         #直接更新
         try:
             result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=30)
             result = json.loads(result.text)
             logging.info(result)
             if result.get('errcode') == 0:
-                pass
-                # raise UserError("新手机号未激活,已更换成功!")
+                employee = self.env['hr.employee'].search([('din_id', '=', self.din_id)])
+                if employee:
+                    employee.sudo().write({'mobile_phone': self.new_mobile})
+                
             elif result.get('errcode') in [60103,60104,40019]:
                 #60103 手机号码不合法
                 #60104 手机号码在公司中已存在
@@ -115,16 +110,27 @@ class ChangeMobile(models.TransientModel):
                     raise UserError("上传员工至钉钉超时！")
                 
                 #重新创建钉钉号
+                data = {
+                    'userid': self.din_id,  # userid
+                    'name': self.name,  # 姓名
+                    'department': [self.dep_din_id],
+                    'mobile': self.new_mobile,  # 手机
+                    'position': self.din_position if self.din_position else '',  # 职位
+                    'jobnumber': self.din_jobnumber if self.din_jobnumber else '',  # 工号
+                }
+                # if self.din_hiredDate:
+                #     din_hiredDate = datetime.strptime(str(self.din_hiredDate), "%Y-%m-%d")
+                #     data.update({'hiredDate':din_hiredDate})
                 try:
                     url = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'user_create')]).value
-                    result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(old_data), timeout=10)
+                    result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=10)
                     result = json.loads(result.text)
                     logging.info(result)
                     if result.get('errcode') == 0:
                         employee = self.env['hr.employee'].search([('din_id', '=', self.din_id)])
                         if employee:
                             employee.sudo().write({'mobile_phone': self.new_mobile})
-                            # raise UserError("通过删除再添加,已更换掉手机号,请重新录人脸!")
+                        
                     else:
                         raise UserError('上传钉钉系统时发生错误，详情为:{}'.format(result.get('errmsg')))
                 except ReadTimeout:
