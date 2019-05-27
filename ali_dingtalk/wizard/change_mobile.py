@@ -92,14 +92,16 @@ class ChangeMobile(models.TransientModel):
             result = json.loads(result.text)
             logging.info(result)
             if result.get('errcode') == 0:
-                # self.message_post(body=u"新的信息已同步更新至钉钉", message_type='notification')
                 pass
-            elif result.get('errcode') in ['60103','60104','40019']:
-                pass
-            elif result.get('errcode') != 0:
+                # raise UserError("新手机号未激活,已更换成功!")
+            elif result.get('errcode') in [60103,60104,40019]:
+                #60103 手机号码不合法
+                #60104 手机号码在公司中已存在
+                #40019 该手机号码对应的用户最多可以加入5个非认证企业
+                raise UserError('更换手机号时发生错误，详情为:{}'.format(result.get('errmsg')))
+            elif result.get('errcode') not in [60103,60104,40019]:
                 #先删除钉钉号
                 url = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'user_delete')]).value
-                token = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'token')]).value
                 data = {
                     'userid': self.din_id,  # userid
                 }
@@ -115,7 +117,6 @@ class ChangeMobile(models.TransientModel):
                 #重新创建钉钉号
                 try:
                     url = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'user_create')]).value
-                    token = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'token')]).value
                     result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(old_data), timeout=10)
                     result = json.loads(result.text)
                     logging.info(result)
@@ -123,7 +124,7 @@ class ChangeMobile(models.TransientModel):
                         employee = self.env['hr.employee'].search([('din_id', '=', self.din_id)])
                         if employee:
                             employee.sudo().write({'mobile_phone': self.new_mobile})
-                        # self.message_post(body=u"钉钉消息：员工信息已上传至钉钉", message_type='notification')
+                            # raise UserError("通过删除再添加,已更换掉手机号,请重新录人脸!")
                     else:
                         raise UserError('上传钉钉系统时发生错误，详情为:{}'.format(result.get('errmsg')))
                 except ReadTimeout:
