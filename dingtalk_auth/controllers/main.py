@@ -12,6 +12,46 @@ _logger = logging.getLogger(__name__)
 
 class AutoLoginController(http.Controller):
 
+    def send_request(self, method, request_url, data, retry=True, retry_count=0, retry_interval=3):
+        """
+        发送HTTP请求
+        """
+        headers = {
+            'Content-Type': 'application/json;charset=utf-8'
+        }
+        if method == 'GET':
+            res = requests.get(request_url, params=data, headers=headers, verify=False)
+        if method == 'POST':
+            res = requests.post(request_url, data=json.dumps(data), headers=headers, verify=False)
+        result = res.json()
+        if result.get('errcode') != 0:
+            if retry:
+                if retry_count <= 5:
+                    # 接口访问出错时重试
+                    time.sleep(retry_interval)
+                    return self.send_request(method, request_url, data, retry_count=retry_count + 1)
+                else:
+                    raise Exception('（钉钉接口错误）' + result.get('errmsg') + ' | （接口地址）' + request_url)
+            else:
+                raise Exception('（钉钉接口错误）' + result.get('errmsg') + ' | （接口地址）' + request_url)
+        else:
+            return result
+
+    def get_user_info_by_auth_code(self, auth_code):
+        """
+        通过AuthCode获取用户基本信息
+        """
+        method = 'GET'
+        url = request.env['ali.dingtalk.system.conf'].sudo().search([('key', '=', 'get_userid')]).value
+        token = request.env['ali.dingtalk.system.conf'].sudo().search([('key', '=', 'token')]).value
+        params = {
+            'access_token': token,
+            'code': auth_code
+        }
+        result = self.send_request(method, url, params)
+        return result
+
+
     @http.route('/dingtalk/auto/login/in', type='http', auth='none')
     def dingtalk_auto_login(self, **kw):
         """
@@ -22,7 +62,8 @@ class AutoLoginController(http.Controller):
         }
         return request.render('dingtalk_auth.dingtalk_auto_login', data)
 
-    @http.route('/dingtalk/auto/login', type='http', auth='none')
+
+    @http.route('/dingtalk/auth', type='http', auth='none')
     def auth(self, **kw):
         """
         钉钉免登认证
@@ -30,8 +71,8 @@ class AutoLoginController(http.Controller):
         authCode = kw.get('authCode')
         if authCode:
             get_result = self.get_user_info_by_auth_code(authCode)
-            if not get_result.get('state'):
-                return self._post_error_message(get_result.get('msg'))
+            # if not get_result.get('state'):
+            #     return self._post_error_message(get_result.get('msg'))
             userid = get_result.get('userid')
             logging.info(">>>获取的user_id为：{}".format(userid))
             if userid:
@@ -48,6 +89,7 @@ class AutoLoginController(http.Controller):
                     else:
                         # 自动注册
                         password = str(random.randint(100000, 999999))
+                        logging.info(">>>初始密码为：{}".format(password))
                         fail = request.env['res.users'].sudo().create_user_by_employee(employee.id, password)
                         if not fail:
                             return http.local_redirect('/dingtalk/auto/login/in')
@@ -58,26 +100,26 @@ class AutoLoginController(http.Controller):
             return self._post_error_message("获取临时授权码失败,请检查钉钉开发者后台设置!")
 
 
-    def get_user_info_by_auth_code(self, auth_code):
-        """
-        根据返回的临时授权码获取用户信息
-        :param auth_code:
-        :return:
-        """
-        url = request.env['ali.dingtalk.system.conf'].sudo().search([('key', '=', 'get_userid')]).value
-        token = request.env['ali.dingtalk.system.conf'].sudo().search([('key', '=', 'token')]).value
-        url = "{}?access_token={}&code={}".format(url, token, auth_code)
-        try:
-            result = requests.get(url=url, timeout=5)
-            result = json.loads(result.text)
-            if result.get('errcode') != 0:
-                return {'state': False, 'msg': "钉钉接口错误:{}".format(result.get('errmsg'))}
-            else:
-                return {'state': True, 'userid': result.get('userid')}
-        except ReadTimeout:
-            return {'state': False, 'msg': "免登超时,请重试!"}
-        except Exception as e:
-            return {'state': False, 'msg': "登录失败,异常信息:{}".format(str(e))}
+    # def get_user_info_by_auth_code(self, auth_code):
+    #     """
+    #     根据返回的临时授权码获取用户信息
+    #     :param auth_code:
+    #     :return:
+    #     """
+    #     url = request.env['ali.dingtalk.system.conf'].sudo().search([('key', '=', 'get_userid')]).value
+    #     token = request.env['ali.dingtalk.system.conf'].sudo().search([('key', '=', 'token')]).value
+    #     url = "{}?access_token={}&code={}".format(url, token, auth_code)
+    #     try:
+    #         result = requests.get(url=url, timeout=5)
+    #         result = json.loads(result.text)
+    #         if result.get('errcode') != 0:
+    #             return {'state': False, 'msg': "钉钉接口错误:{}".format(result.get('errmsg'))}
+    #         else:
+    #             return {'state': True, 'userid': result.get('userid')}
+    #     except ReadTimeout:
+    #         return {'state': False, 'msg': "免登超时,请重试!"}
+    #     except Exception as e:
+    #         return {'state': False, 'msg': "登录失败,异常信息:{}".format(str(e))}
 
 
     def _post_error_message(self, message):

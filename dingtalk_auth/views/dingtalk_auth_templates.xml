@@ -24,7 +24,7 @@
                 dd.runtime.permission.requestAuthCode({
                     corpId,
                     onSuccess: function(result) {
-                    window.location.replace("/dingtalk/auto/login?authCode=" + result.code);
+                    window.location.replace("/dingtalk/auth?authCode=" + result.code);
                 },
                 onFail: function(err) {
                     alert("系统错误，请使用账号密码登陆。");
