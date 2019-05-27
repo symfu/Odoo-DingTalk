@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-    <record id="ali_dingtalk.view_employee_form_inherit" model="ir.ui.view">
+    <!-- <record id="ali_dingtalk.view_employee_form_inherit" model="ir.ui.view">
         <field name="name">hr.employee.form</field>
         <field name="model">hr.employee</field>
         <field name="inherit_id" ref="hr.view_employee_form"/>
@@ -20,6 +20,59 @@
                 </header>
             </xpath>
         </field>
-    </record>
+    </record> -->
 
+
+    <!--扩展员工，增加钉钉单独页面-->
+    <record id="ali_dingtalk.view_employee_form_inherit" model="ir.ui.view">
+        <field name="name">hr.employee.form</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='public']" position="after">
+                <page string="Dingtalk">
+                    <group>
+                        <group string="PUBLIC INFO">                 
+                            <label for="din_avatar"/>
+                            <div class="o_row">
+                                <field name="din_avatar" widget="image_url" class="oe_image_small" width="50px" height="50px"/>
+                                <button
+                                    name="get_dingtalk_image"
+                                    string="设为员工头像" 
+                                    icon="fa-arrow-right" 
+                                    type="object"
+                                    class="btn-link"
+                                    attrs="{'invisible':[('din_avatar', '=', False)]}"
+                                />
+                            </div>
+                            <field name="din_id" />
+                            <field name="din_position" />
+                            <field name="din_hiredDate" />
+                            <field name="din_admin" />
+                            <field name="din_isboss" />
+                            <field name="din_hide" />
+                            <field name="din_isSenior" />
+                            <field name="din_active" />
+                            <field name="work_status"/>      
+                            <!-- <field name="din_orgdeptowner_ids" widget="many2many_tags" /> -->
+                        </group>
+
+                        <group string="Debug">
+                            <field name="din_unionid"/>
+                            <field name="din_orderindepts" />
+                            <field name="din_isLeaderInDepts" />
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+            <xpath expr="//sheet" position="before">
+                <header>
+                    <button name="create_ding_employee" type="object" string="上传至钉钉" class="oe_highlight"
+                                confirm="确认要将此员工上传至钉钉吗？若不是新创建的员工则无法上传!"/>
+                    <button name="update_ding_employee" type="object" string="更新至钉钉" class="oe_highlight"
+                                confirm="系统将新的信息上传至钉钉,确认?"/>
+                </header>
+            </xpath>
+        </field>
+    </record>
 </odoo>

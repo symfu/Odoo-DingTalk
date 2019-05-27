@@ -28,6 +28,19 @@ class HrEmployee(models.Model):
     din_sy_state = fields.Boolean(string=u'同步标识', default=False)
     work_status = fields.Selection(string=u'工作状态', selection=[(1, '待入职'), (2, '试用期'), (3, '正式员工'), (4, '离职')])
 
+    din_admin = fields.Boolean("是管理员",default=False)
+    din_isboss = fields.Boolean("是老板",default=False)
+    din_hide = fields.Boolean("隐藏手机号",default=False)
+    din_leader = fields.Boolean("部门主管",default=False)
+    din_isSenior = fields.Boolean("高管模式",default=False)
+    din_active = fields.Boolean("是否激活",readonly=True)
+    din_position = fields.Char("职位信息")
+    din_avatar = fields.Char("钉钉头像url")
+    din_orderindepts = fields.Char("所在部门序位")
+    din_isLeaderInDepts = fields.Char("是否为部门主管")
+
+
+
     # 上传员工到钉钉
     @api.multi
     def create_ding_employee(self):
@@ -64,11 +77,48 @@ class HrEmployee(models.Model):
             except ReadTimeout:
                 raise UserError("上传员工至钉钉超时！")
 
+
     # 修改员工同步到钉钉
     @api.multi
     def update_ding_employee(self):
-        """修改员工时同步至钉钉
-           强制更换手机号
+        """修改员工时同步至钉钉"""
+
+        for res in self:
+            url = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'user_update')]).value
+            token = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'token')]).value
+            # 获取部门din_id
+            department_list = list()
+            if not res.department_id:
+                raise UserError("请选择员工部门!")
+            data = {
+                'userid': res.din_id,  # userid
+                'name': res.name,  # 名称
+                'department': department_list.append(res.department_id.din_id),  # 部门
+                'position': res.job_title if res.job_title else '',  # 职位
+                'mobile': res.mobile_phone if res.mobile_phone else '',  # 手机
+                'tel': res.work_phone if res.work_phone else '',  # 手机
+                'workPlace': res.work_location if res.work_location else '',  # 办公地址
+                'remark': res.notes if res.notes else '',  # 备注
+                'email': res.work_email if res.work_email else '',  # 邮箱
+                'jobnumber': res.din_jobnumber if res.din_jobnumber else '',  # 工号
+            }
+            headers = {'Content-Type': 'application/json'}
+            try:
+                result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=30)
+                result = json.loads(result.text)
+                logging.info(result)
+                if result.get('errcode') == 0:
+                    res.message_post(body=u"新的信息已同步更新至钉钉", message_type='notification')
+                else:
+                    raise UserError('更新钉钉系统时发生错误，详情为:{}'.format(result.get('errmsg')))
+            except ReadTimeout:
+                raise UserError("上传员工至钉钉超时！")
+
+
+    # 员工钉钉换手机号
+    @api.multi
+    def change_dingtalk_mobile(self):
+        """强制更换手机号
            -如果手机号未激活，通过更新手机字段实现
            -如果手机号已经激活，则通过先删除该钉钉号，再重新创建钉钉号实现，新建的钉钉号使用老的userid
            -如果该员工有使用钉钉人脸考勤，需要重新录人脸，否则无法继续考勤
@@ -203,9 +253,11 @@ class HrEmployee(models.Model):
                     data.update({
                         'din_hiredDate': time_stamp,  # 入职时间
                     })
+                #获取钉钉头像url
                 if user.get('avatar'):
-                    binary_data = tools.image_resize_image_big(base64.b64encode(requests.get(user.get('avatar')).content))
-                    data.update({'image': binary_data})
+                    # binary_data = tools.image_resize_image_big(base64.b64encode(requests.get(user.get('avatar')).content))
+                    # data.update({'image': binary_data})
+                    data.update({'din_avatar': user.get('avatar')})
                 employee = self.env['hr.employee'].search(['|', ('din_id', '=', user.get('userid')), ('name', '=', user.get('name'))])
                 if employee:
                     employee.sudo().write(data)
@@ -216,6 +268,13 @@ class HrEmployee(models.Model):
             logging.info(">>>获取部门员工失败，原因为:{}".format(result.get('errmsg')))
             return {'state': False, 'msg': "获取部门员工失败，原因为:{}".format(result.get('errmsg'))}
 
+    #获取钉钉头像设为员工头像
+    @api.multi
+    def get_dingtalk_image(self):
+        if self.din_avatar:
+            binary_data = tools.image_resize_image_big(base64.b64encode(requests.get(self.din_avatar).content))
+            self.sudo().write({'image': binary_data})
+                
     @api.model
     def get_time_stamp(self, timeNum):
         """
