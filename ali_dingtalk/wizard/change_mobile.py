@@ -94,7 +94,8 @@ class ChangeMobile(models.TransientModel):
             if result.get('errcode') == 0:
                 # self.message_post(body=u"新的信息已同步更新至钉钉", message_type='notification')
                 pass
-    
+            elif result.get('errcode') in ['60103','60104','40019']:
+                pass
             elif result.get('errcode') != 0:
                 #先删除钉钉号
                 url = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'user_delete')]).value
