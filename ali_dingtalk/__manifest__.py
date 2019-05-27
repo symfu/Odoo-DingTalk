@@ -20,6 +20,7 @@
         'views/res_config_settings_views.xml',
         'views/asset.xml',
         'views/department.xml',
+        'wizard/change_mobile.xml',
         'views/employee.xml',
         'views/partner.xml',
         'views/feedback.xml',

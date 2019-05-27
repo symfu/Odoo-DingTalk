@@ -73,6 +73,23 @@
                                 confirm="系统将新的信息上传至钉钉,确认?"/>
                 </header>
             </xpath>
+
+            <xpath expr="//field[@name='mobile_phone']" position="replace">
+                <label for="mobile_phone"/>
+                    <div class="o_row">
+                        <field name="mobile_phone" widget="phone"/>
+                        <button
+                            type="action"
+                            name="%(ali_dingtalk.change_mobile_action)d"
+                            class="btn-sm btn-link mb4 fa fa-mobile"
+                            aria-label="Change Mobile"
+                            title="Change Mobile"
+                            attrs="{'invisible':[('mobile_phone', '=', False)]}"
+                            context="{'field_name': 'mobile_phone'}"
+                        />
+
+                    </div>
+            </xpath>
         </field>
     </record>
 </odoo>

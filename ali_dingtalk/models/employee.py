@@ -115,53 +115,6 @@ class HrEmployee(models.Model):
                 raise UserError("上传员工至钉钉超时！")
 
 
-    # 员工钉钉换手机号
-    @api.multi
-    def change_dingtalk_mobile(self):
-        """强制更换手机号
-           -如果手机号未激活，通过更新手机字段实现
-           -如果手机号已经激活，则通过先删除该钉钉号，再重新创建钉钉号实现，新建的钉钉号使用老的userid
-           -如果该员工有使用钉钉人脸考勤，需要重新录人脸，否则无法继续考勤
-        """
-        for res in self:
-            url = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'user_update')]).value
-            token = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'token')]).value
-            # 获取部门din_id
-            department_list = list()
-            if not res.department_id:
-                raise UserError("请选择员工部门!")
-            data = {
-                'userid': res.din_id,  # userid
-                'name': res.name,  # 名称
-                'department': [res.department_id.din_id],  # 部门
-                'position': res.job_title if res.job_title else '',  # 职位
-                'mobile': res.mobile_phone if res.mobile_phone else '',  # 手机
-                'tel': res.work_phone if res.work_phone else '',  # 手机
-                'workPlace': res.work_location if res.work_location else '',  # 办公地址
-                'remark': res.notes if res.notes else '',  # 备注
-                'email': res.work_email if res.work_email else '',  # 邮箱
-                'jobnumber': res.din_jobnumber if res.din_jobnumber else '',  # 工号
-            }
-            old_data = data
-            headers = {'Content-Type': 'application/json'}
-            try:
-                result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=30)
-                result = json.loads(result.text)
-                logging.info(result)
-                if result.get('errcode') == 0:
-                    res.message_post(body=u"新的信息已同步更新至钉钉", message_type='notification')
-                elif result.get('errcode') != 0:
-                    #先删除钉钉号
-                    self.delete_din_employee(res.din_id)
-                    #重新创建钉钉号
-                    url = self.env['ali.dingtalk.system.conf'].search([('key', '=', 'user_create')]).value
-                    result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(old_data), timeout=10)
-                    result = json.loads(result.text)
-                else:
-                    raise UserError('更新钉钉系统时发生错误，详情为:{}'.format(result.get('errmsg')))
-            except ReadTimeout:
-                raise UserError("上传员工至钉钉超时！")
-
     @api.constrains('user_id')
     def constrains_dingtalk_user_id(self):
         """当选择了相关用户时，需要检查系统用户是否只对应一个员工"""
