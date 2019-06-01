@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!--上传文件-->
+        <record id="ali_dindin_system_conf_data_upload_media" model="ali.dindin.system.conf">
+            <field name="name">上传媒体文件</field>
+            <field name="key">data_upload_media</field>
+            <field name="value">https://oapi.dingtalk.com/media/upload?access_token=
+            </field>
+        </record>
+        
+    </data>
+</odoo>
