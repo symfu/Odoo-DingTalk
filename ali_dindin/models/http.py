@@ -10,7 +10,6 @@ from odoo.tools import date_utils
 from odoo.http import WebRequest, Response
 
 
-
 def _json_response(self, result=None, error=None):
 
     response = {
