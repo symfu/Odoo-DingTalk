@@ -159,10 +159,10 @@ class DingDingSynchronous(models.TransientModel):
 
         client = get_client(self)
         result = client.ext.listlabelgroups(offset=0, size=100)
-        
-        if result.get('errcode') == 0:
+        logging.info(result)
+        if result:
             category_list = list()
-            for res in result.get('results'):
+            for res in result:
                 for labels in res.get('labels'):
                     category_list.append({
                         'name': labels.get('name'),
@@ -190,12 +190,12 @@ class DingDingSynchronous(models.TransientModel):
 
         client = get_client(self)
         result = client.ext.list(offset=0, size=100)
-
-        if result.get('errcode') == 0:
-            for res in result.get('results'):
+        logging.info(result)
+        if result:
+            for res in result:
                 # 获取标签
                 label_list = list()
-                for label in res.get('label_ids'):
+                for label in res.get('labelIds'):
                     category = self.env['res.partner.category'].sudo().search(
                         [('din_id', '=', label)])
                     if category:
@@ -212,9 +212,9 @@ class DingDingSynchronous(models.TransientModel):
                     'din_company_name': res.get('company_name'),  # 钉钉公司名称
                 }
                 # 获取负责人
-                if res.get('follower_user_id'):
+                if res.get('followerUserId'):
                     follower_user = self.env['hr.employee'].sudo().search(
-                        [('din_id', '=', res.get('follower_user_id'))])
+                        [('din_id', '=', res.get('followerUserId'))])
                     data.update({'din_employee_id': follower_user[0].id if follower_user else ''})
                 # 根据userid查询联系人是否存在
                 partner = self.env['res.partner'].sudo().search(['|', ('din_userid', '=', res.get('userid')), ('name', '=', res.get('name'))])

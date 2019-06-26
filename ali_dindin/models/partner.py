@@ -33,8 +33,6 @@ class ResPartner(models.Model):
         for res in self:
             if res.din_userid:
                 raise UserError('钉钉中已存在该联系人,请不要重复上传或使用更新联系人功能！')
-            url = self.env['ali.dindin.system.conf'].search([('key', '=', 'extcontact_create')]).value
-            token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
             # 获取标签
             label_list = list()
             if res.category_id:
