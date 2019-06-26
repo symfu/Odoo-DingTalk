@@ -5,6 +5,7 @@ import requests
 from requests import ReadTimeout
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+from .dingtalk_client import get_client
 
 _logger = logging.getLogger(__name__)
 
@@ -45,23 +46,18 @@ class ResPartner(models.Model):
                 raise UserError('手机号码或电话为必填！')
             if not res.din_employee_id:
                 raise UserError("请选择联系人对应的负责人!")
-            data = {
-                'contact': {
-                    'title': res.function,  # 职位
-                    'label_ids': label_list,  # 标签列表
-                    'address': res.street,  # 地址
-                    'remark': res.comment,  # 备注
-                    'follower_user_id': res.din_employee_id.din_id if res.din_employee_id else '',  # 负责人userid
-                    'name': res.name,  # 联系人名称
-                    'state_code': '86',  # 手机号国家码
-                    'company_name': res.din_company_name,  # 钉钉企业公司名称
-                    'mobile': res.mobile if res.mobile else res.phone,  # 手机
-                }
-            }
-            headers = {'Content-Type': 'application/json'}
+            title=res.function,  # 职位
+            label_ids=label_list,  # 标签列表
+            address=res.street,  # 地址
+            remark=res.comment,  # 备注
+            follower_userid=res.din_employee_id.din_id if res.din_employee_id else '',  # 负责人userid
+            name=res.name,  # 联系人名称
+            company_name=res.din_company_name,  # 钉钉企业公司名称
+            mobile=res.mobile if res.mobile else res.phone,  # 手机
             try:
-                result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=30)
-                result = json.loads(result.text)
+                client = get_client(self)
+                result = client.ext.add(name, follower_userid, label_ids, mobile, state_code='86',
+                    title=title, share_deptids=(), remark=remark, address=address, company_name=company_name, share_userids=())
                 logging.info(result)
                 if result.get('errcode') == 0:
                     res.write({'din_userid': result.get('userid')})
@@ -71,47 +67,47 @@ class ResPartner(models.Model):
             except ReadTimeout:
                 raise UserError("上传联系人至钉钉超时！")
 
-    @api.multi
-    def update_ding_partner(self):
-        """修改员工时同步至钉钉"""
-        for res in self:
-            url = self.env['ali.dindin.system.conf'].search([('key', '=', 'extcontact_update')]).value
-            token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
-            # 获取标签
-            label_list = list()
-            if res.category_id:
-                for label in res.category_id:
-                    label_list.append(label.din_id)
-            else:
-                raise UserError('请选择联系人标签，若不存在标签，请先使用手动同步联系人标签功能！')
-            if not res.din_employee_id:
-                raise UserError("请选择联系人对应的负责人!")
-            employee = self.env['hr.employee'].sudo().search([('id', '=', res.din_employee_id.id)])
-            data = {
-                'contact': {
-                    'user_id': res.din_userid,  # 联系人钉钉id
-                    'title': res.function,  # 职位
-                    'label_ids': label_list,  # 标签列表
-                    'address': res.street,  # 地址
-                    'remark': res.comment,  # 备注
-                    'follower_user_id': employee.din_id if employee else '',  # 负责人userid
-                    'name': res.name,  # 联系人名称
-                    'state_code': '86',  # 手机号国家码
-                    'company_name': res.din_company_name,  # 钉钉企业公司名称
-                    'mobile': res.mobile if res.mobile else res.phone,  # 手机
-                }
-            }
-            headers = {'Content-Type': 'application/json'}
-            try:
-                result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=20)
-                result = json.loads(result.text)
-                logging.info("更新联系人返回结果:{}".format(result))
-                if result.get('errcode') == 0:
-                    res.message_post(body=u"新的信息已同步更新至钉钉", message_type='notification')
-                else:
-                    raise UserError('上传钉钉系统时发生错误，详情为:{}'.format(result.get('errmsg')))
-            except ReadTimeout:
-                raise UserError("上传联系人至钉钉超时！")
+    # @api.multi
+    # def update_ding_partner(self):
+    #     """修改联系人时同步至钉钉"""
+    #     for res in self:
+    #         url = self.env['ali.dindin.system.conf'].search([('key', '=', 'extcontact_update')]).value
+    #         token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
+    #         # 获取标签
+    #         label_list = list()
+    #         if res.category_id:
+    #             for label in res.category_id:
+    #                 label_list.append(label.din_id)
+    #         else:
+    #             raise UserError('请选择联系人标签，若不存在标签，请先使用手动同步联系人标签功能！')
+    #         if not res.din_employee_id:
+    #             raise UserError("请选择联系人对应的负责人!")
+    #         employee = self.env['hr.employee'].sudo().search([('id', '=', res.din_employee_id.id)])
+    #         data = {
+    #             'contact': {
+    #                 'user_id': res.din_userid,  # 联系人钉钉id
+    #                 'title': res.function,  # 职位
+    #                 'label_ids': label_list,  # 标签列表
+    #                 'address': res.street,  # 地址
+    #                 'remark': res.comment,  # 备注
+    #                 'follower_user_id': employee.din_id if employee else '',  # 负责人userid
+    #                 'name': res.name,  # 联系人名称
+    #                 'state_code': '86',  # 手机号国家码
+    #                 'company_name': res.din_company_name,  # 钉钉企业公司名称
+    #                 'mobile': res.mobile if res.mobile else res.phone,  # 手机
+    #             }
+    #         }
+    #         headers = {'Content-Type': 'application/json'}
+    #         try:
+    #             result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=20)
+    #             result = json.loads(result.text)
+    #             logging.info("更新联系人返回结果:{}".format(result))
+    #             if result.get('errcode') == 0:
+    #                 res.message_post(body=u"新的信息已同步更新至钉钉", message_type='notification')
+    #             else:
+    #                 raise UserError('上传钉钉系统时发生错误，详情为:{}'.format(result.get('errmsg')))
+    #         except ReadTimeout:
+    #             raise UserError("上传联系人至钉钉超时！")
 
     # 重写删除方法
     @api.multi
@@ -123,22 +119,22 @@ class ResPartner(models.Model):
                 self.delete_din_extcontact(din_userid)
             return True
 
-    @api.model
-    def delete_din_extcontact(self, din_userid):
-        """删除钉钉联系人"""
-        url = self.env['ali.dindin.system.conf'].search([('key', '=', 'extcontact_delete')]).value
-        token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
-        data = {
-            'user_id': din_userid,  # din_userid
-        }
-        try:
-            result = requests.get(url="{}{}".format(url, token), params=data, timeout=20)
-            result = json.loads(result.text)
-            logging.info("删除钉钉联系人结果:{}".format(result))
-            if result.get('errcode') != 0:
-                raise UserError('删除钉钉联系人时发生错误，详情为:{}'.format(result.get('errmsg')))
-        except ReadTimeout:
-            raise UserError("上传至钉钉超时！")
+    # @api.model
+    # def delete_din_extcontact(self, din_userid):
+    #     """删除钉钉联系人"""
+    #     url = self.env['ali.dindin.system.conf'].search([('key', '=', 'extcontact_delete')]).value
+    #     token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
+    #     data = {
+    #         'user_id': din_userid,  # din_userid
+    #     }
+    #     try:
+    #         result = requests.get(url="{}{}".format(url, token), params=data, timeout=20)
+    #         result = json.loads(result.text)
+    #         logging.info("删除钉钉联系人结果:{}".format(result))
+    #         if result.get('errcode') != 0:
+    #             raise UserError('删除钉钉联系人时发生错误，详情为:{}'.format(result.get('errmsg')))
+    #     except ReadTimeout:
+    #         raise UserError("上传至钉钉超时！")
 
 
 # 未使用，但是不能删除，因为第一个版本创建的视图还存在

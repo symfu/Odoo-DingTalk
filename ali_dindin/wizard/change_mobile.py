@@ -5,6 +5,7 @@ import json
 from requests import ReadTimeout
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
+from ..models.dingtalk_client import get_client
 
 _logger = logging.getLogger(__name__)
 
@@ -62,10 +63,8 @@ class ChangeMobile(models.TransientModel):
             40019 该手机号码对应的用户最多可以加入5个非认证企业；
             40021 该手机号码已经注册过钉钉。
         """
+        client = get_client(self)
         # 先尝试直接更新
-        url = self.env['ali.dindin.system.conf'].search([('key', '=', 'user_update')]).value
-        token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
-        headers = {'Content-Type': 'application/json'}
         data = {
             'userid': self.din_id,  # userid
             'name': self.name,  # 姓名
@@ -73,23 +72,19 @@ class ChangeMobile(models.TransientModel):
             'mobile': self.new_mobile,  # 手机
         }
         try:
-            result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=30)
-            result = json.loads(result.text)
-            logging.info(result)
+            result = client.user.update(data)
             if result.get('errcode') == 0:
                 employee = self.env['hr.employee'].search([('din_id', '=', self.din_id)])
                 if employee:
                     employee.sudo().write({'mobile_phone': self.new_mobile})
+                    employee.message_post(body="通过直接更新手机号为:{}".format(self.new_mobile), message_type='notification')
             else:
                 # 如果手机号已经激活或者新手机号注册过钉钉，先删除钉钉号再新建
-                url = self.env['ali.dindin.system.conf'].search([('key', '=', 'user_delete')]).value
-                token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
                 data = {
                     'userid': self.din_id,  # userid
                 }
                 try:
-                    result = requests.get(url="{}{}".format(url, token), params=data, timeout=20)
-                    result = json.loads(result.text)
+                    result = client.user.delete(data)
                     logging.info("user_delete:{}".format(result)) 
                     employee = self.env['hr.employee'].search([('din_id', '=', self.din_id)])
                     if employee:
@@ -99,11 +94,7 @@ class ChangeMobile(models.TransientModel):
                             employee.message_post(body="原号码在钉钉已经不存在，等待新建钉钉号", message_type='notification')
                 except ReadTimeout:
                     raise UserError("删除钉钉号超时！")
-
                 # 不管是否删除成功，只要保证原号码在钉钉上已经不存在，马上新建钉钉号
-                url = self.env['ali.dindin.system.conf'].search([('key', '=', 'user_create')]).value
-                token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
-                headers = {'Content-Type': 'application/json'}
                 data = {
                     'userid': self.din_id,  # userid
                     'name': self.name,  # 姓名
@@ -111,9 +102,7 @@ class ChangeMobile(models.TransientModel):
                     'mobile': self.new_mobile,  # 手机
                 }
                 try:
-                    result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=10)
-                    result = json.loads(result.text)
-                    logging.info(result)
+                    result = client.user.create(data)
                     if result.get('errcode') == 0:
                         employee = self.env['hr.employee'].search([('din_id', '=', self.din_id)])
                         if employee:

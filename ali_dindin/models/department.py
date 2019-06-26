@@ -5,6 +5,7 @@ import requests
 from requests import ReadTimeout
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+from .dingtalk_client import get_client
 
 _logger = logging.getLogger(__name__)
 
@@ -22,11 +23,10 @@ class HrDepartment(models.Model):
 
     @api.multi
     def create_ding_department(self):
+        
         for res in self:
             if res.din_id:
                 raise UserError("该部门已在钉钉中存在！")
-            url = self.env['ali.dindin.system.conf'].search([('key', '=', 'department_create')]).value
-            token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
             data = {
                 'name': res.name,  # 部门名称
             }
@@ -35,11 +35,9 @@ class HrDepartment(models.Model):
                 data.update({'parentid': res.parent_id.din_id if res.parent_id.din_id else ''})
             else:
                 raise UserError("请选择上级部门!")
-            headers = {'Content-Type': 'application/json'}
             try:
-                result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data),
-                                       timeout=10)
-                result = json.loads(result.text)
+                client = get_client(self)
+                result = client.department.create(data)              
                 logging.info(">>>新增部门返回结果:{}".format(result))
                 if result.get('errcode') == 0:
                     res.write({'din_id': result.get('id')})
@@ -51,9 +49,8 @@ class HrDepartment(models.Model):
 
     @api.multi
     def update_ding_department(self):
+
         for res in self:
-            url = self.env['ali.dindin.system.conf'].search([('key', '=', 'department_update')]).value
-            token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
             # 获取部门din_id
             if not res.parent_id:
                 raise UserError("请选择上级部门!")
@@ -62,11 +59,9 @@ class HrDepartment(models.Model):
                 'name': res.name,  # 部门名称
                 'parentid': res.parent_id.din_id,  # 父部门id
             }
-            headers = {'Content-Type': 'application/json'}
             try:
-                result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data),
-                                       timeout=10)
-                result = json.loads(result.text)
+                client = get_client(self)
+                result = client.department.update(data)    
                 logging.info(">>>修改部门时钉钉返回结果:{}".format(result))
                 if result.get('errcode') == 0:
                     res.message_post(body=u"钉钉消息：新的信息已同步更新至钉钉", message_type='notification')
@@ -78,6 +73,7 @@ class HrDepartment(models.Model):
     # 重写删除方法
     @api.multi
     def unlink(self):
+
         for res in self:
             din_id = res.din_id
             super(HrDepartment, self).unlink()
@@ -89,14 +85,13 @@ class HrDepartment(models.Model):
     @api.model
     def delete_din_department(self, din_id):
         """删除钉钉部门"""
-        url = self.env['ali.dindin.system.conf'].search([('key', '=', 'department_delete')]).value
-        token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
+
         data = {
             'id': din_id,  # userid
         }
         try:
-            result = requests.get(url="{}{}".format(url, token), params=data, timeout=15)
-            result = json.loads(result.text)
+            client = get_client(self)
+            result = client.department.delete(data)    
             logging.info(">>>删除钉钉部门返回结果:{}".format(result))
             if result.get('errcode') != 0:
                 raise UserError('删除钉钉部门时发生错误，详情为:{}'.format(result.get('errmsg')))

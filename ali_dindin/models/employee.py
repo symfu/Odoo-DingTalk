@@ -6,6 +6,7 @@ import time
 from requests import ReadTimeout
 from odoo import api, fields, models, tools
 from odoo.exceptions import UserError
+from .dingtalk_client import get_client
 
 _logger = logging.getLogger(__name__)
 try:
@@ -40,8 +41,6 @@ class HrEmployee(models.Model):
     @api.multi
     def create_ding_employee(self):
         for res in self:
-            url = self.env['ali.dindin.system.conf'].search([('key', '=', 'user_create')]).value
-            token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
             # 获取部门din_id
             department_list = list()
             if not res.department_id:
@@ -62,12 +61,10 @@ class HrEmployee(models.Model):
                 'email': res.work_email if res.work_email else '',  # 邮箱
                 'jobnumber': res.din_jobnumber if res.din_jobnumber else '',  # 工号
             }
-            headers = {'Content-Type': 'application/json'}
             try:
-                result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data),
-                                       timeout=10)
-                result = json.loads(result.text)
-                logging.info(result)
+                client = get_client(self)
+                result = client.user.create(data)
+                logging.info(">>>新增员工返回结果:{}".format(result))
                 if result.get('errcode') == 0:
                     res.write({'din_id': result.get('userid')})
                     res.message_post(body=u"钉钉消息：员工信息已上传至钉钉", message_type='notification')
@@ -81,8 +78,6 @@ class HrEmployee(models.Model):
     def update_ding_employee(self):
         """修改员工时同步至钉钉"""
         for res in self:
-            url = self.env['ali.dindin.system.conf'].search([('key', '=', 'user_update')]).value
-            token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
             # 获取部门din_id
             department_list = list()
             if not res.department_id:
@@ -93,7 +88,6 @@ class HrEmployee(models.Model):
                     department_list.append(res.department_id.din_id)
             else:
                 department_list.append(res.department_id.din_id)
-            _logger.info(department_list)
             data = {
                 'userid': res.din_id,  # userid
                 'name': res.name,  # 名称
@@ -111,13 +105,9 @@ class HrEmployee(models.Model):
             if res.din_hiredDate:
                 hiredDate = self.date_to_stamp(res.din_hiredDate)
                 data.update({'hiredDate': hiredDate})
-
-            headers = {'Content-Type': 'application/json'}
             try:
-                result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data),
-                                       timeout=30)
-                result = json.loads(result.text)
-                logging.info(result)
+                client = get_client(self)
+                result = client.user.update(data)
                 if result.get('errcode') == 0:
                     res.message_post(body=u"新的信息已同步更新至钉钉", message_type='notification')
                 else:
@@ -140,13 +130,11 @@ class HrEmployee(models.Model):
         从钉钉获取用户详情
         :return:
         """
-        url = self.env['ali.dindin.system.conf'].search([('key', '=', 'user_get')]).value
-        token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
         for employee in self:
             data = {'userid': employee.din_id}
             try:
-                result = requests.get(url="{}{}".format(url, token), params=data, timeout=20)
-                result = json.loads(result.text)
+                client = get_client(self)
+                result = client.user.get(data)
                 if result.get('errcode') == 0:
                     data = {
                         'name': result.get('name'),  # 员工名称
@@ -204,14 +192,12 @@ class HrEmployee(models.Model):
     @api.model
     def delete_din_employee(self, userid):
         """删除钉钉用户"""
-        url = self.env['ali.dindin.system.conf'].search([('key', '=', 'user_delete')]).value
-        token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
         data = {
             'userid': userid,  # userid
         }
         try:
-            result = requests.get(url="{}{}".format(url, token), params=data, timeout=20)
-            result = json.loads(result.text)
+            client = get_client(self)
+            result = client.user.delete(data)
             logging.info("user_delete:{}".format(result))
             if result.get('errcode') != 0:
                 raise UserError('删除钉钉用户时发生错误，详情为:{}'.format(result.get('errmsg')))

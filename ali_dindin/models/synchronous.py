@@ -7,8 +7,10 @@ import requests
 from requests import ReadTimeout
 from odoo import api, fields, models, tools
 from odoo.exceptions import UserError
+from .dingtalk_client import get_client
 
 _logger = logging.getLogger(__name__)
+
 
 
 class DingDingSynchronous(models.TransientModel):
@@ -42,13 +44,10 @@ class DingDingSynchronous(models.TransientModel):
         同步钉钉部门
         :return:
         """
-        url = self.env['ali.dindin.system.conf'].search([('key', '=', 'department_list')]).value
-        token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
-        data = {'id': 1}
-        result = requests.get(url="{}{}".format(url, token), params=data, timeout=5)
-        result = json.loads(result.text)
-        if result.get('errcode') == 0:
-            for res in result.get('department'):
+        client = get_client(self)
+        result = client.department.list(fetch_child=True)
+        if result:
+            for res in result:
                 data = {
                     'name': res.get('name'),
                     'din_id': res.get('id'),
@@ -74,22 +73,15 @@ class DingDingSynchronous(models.TransientModel):
         同步钉钉部门员工列表
         :return:
         """
-        url = self.env['ali.dindin.system.conf'].search([('key', '=', 'user_listbypage')]).value
-        token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
-        # 获取所有部门
-        departments = self.env['hr.department'].sudo().search([('din_id', '!=', '')])
+        departments = self.env['hr.department'].sudo().search([('din_id', '!=', '')])   
         for department in departments:
             emp_offset = 0
             emp_size = 100
             while True:
                 logging.info(">>>开始获取{}部门的员工".format(department.name))
-                data = {
-                    'access_token': token,
-                    'department_id': department[0].din_id,
-                    'offset': emp_offset,
-                    'size': emp_size,
-                }
-                result_state = self.get_dingding_employees(department, url, data, s_avatar=s_avatar)
+                offset = emp_offset
+                size = emp_size
+                result_state = self.get_dingding_employees(department, offset, size, s_avatar=s_avatar)
                 if result_state:
                     emp_offset = emp_offset + 1
                 else:
@@ -97,9 +89,11 @@ class DingDingSynchronous(models.TransientModel):
         return True
 
     @api.model
-    def get_dingding_employees(self, department, url, data, s_avatar=None):
-        result = requests.get(url=url, params=data, timeout=5)
-        result = json.loads(result.text)
+    def get_dingding_employees(self, department, offset=0, size=100, s_avatar=None):
+
+        client = get_client(self)
+        result = client.user.list(department[0].din_id, offset, size, order='custom')
+
         if result.get('errcode') == 0:
             for user in result.get('userlist'):
                 data = {
@@ -162,15 +156,10 @@ class DingDingSynchronous(models.TransientModel):
         :return:
         """
         logging.info(">>>同步钉钉联系人标签")
-        url = self.env['ali.dindin.system.conf'].search([('key', '=', 'listlabelgroups')]).value
-        token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
-        headers = {'Content-Type': 'application/json'}
-        data = {
-            'size': 100,
-            'offset': 0
-        }
-        result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=3)
-        result = json.loads(result.text)
+
+        client = get_client(self)
+        result = client.ext.listlabelgroups(offset=0, size=100)
+        
         if result.get('errcode') == 0:
             category_list = list()
             for res in result.get('results'):
@@ -198,15 +187,10 @@ class DingDingSynchronous(models.TransientModel):
         :return:
         """
         logging.info(">>>同步钉钉联系人列表start")
-        url = self.env['ali.dindin.system.conf'].search([('key', '=', 'extcontact_list')]).value
-        token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
-        headers = {'Content-Type': 'application/json'}
-        data = {
-            'size': 100,
-            'offset': 0
-        }
-        result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=5)
-        result = json.loads(result.text)
+
+        client = get_client(self)
+        result = client.ext.list(offset=0, size=100)
+
         if result.get('errcode') == 0:
             for res in result.get('results'):
                 # 获取标签

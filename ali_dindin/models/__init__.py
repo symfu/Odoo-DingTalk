@@ -9,3 +9,4 @@ from . import partner
 from . import synchronous
 from . import feedback
 from . import http
+from . import dingtalk_client
