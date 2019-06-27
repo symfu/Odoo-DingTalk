@@ -4,10 +4,10 @@ import json
 import logging
 import time
 import requests
-from requests import ReadTimeout
 from odoo import api, fields, models, tools
 from odoo.exceptions import UserError
 from .dingtalk_client import get_client
+from dingtalk.core.exceptions import DingTalkClientException
 
 _logger = logging.getLogger(__name__)
 
@@ -44,9 +44,9 @@ class DingDingSynchronous(models.TransientModel):
         同步钉钉部门
         :return:
         """
-        client = get_client(self)
-        result = client.department.list(fetch_child=True)
-        if result:
+        try:
+            client = get_client(self)
+            result = client.department.list(fetch_child=True)
             for res in result:
                 data = {
                     'name': res.get('name'),
@@ -64,8 +64,8 @@ class DingDingSynchronous(models.TransientModel):
                 else:
                     self.env['hr.department'].create(data)
             return True
-        else:
-            raise UserError("同步部门时发生意外，原因为:{}".format(result.get('errmsg')))
+        except DingTalkClientException as e:
+            raise UserError(e)
 
     @api.model
     def synchronous_dingding_employee(self, s_avatar=None):
@@ -91,10 +91,9 @@ class DingDingSynchronous(models.TransientModel):
     @api.model
     def get_dingding_employees(self, department, offset=0, size=100, s_avatar=None):
 
-        client = get_client(self)
-        result = client.user.list(department[0].din_id, offset, size, order='custom')
-
-        if result.get('errcode') == 0:
+        try:
+            client = get_client(self)
+            result = client.user.list(department[0].din_id, offset, size, order='custom')
             for user in result.get('userlist'):
                 data = {
                     'name': user.get('name'),  # 员工名称
@@ -146,8 +145,8 @@ class DingDingSynchronous(models.TransientModel):
                 else:
                     self.env['hr.employee'].sudo().create(data)
             return result.get('hasMore')
-        else:
-            raise UserError("同步部门员工时发生意外，原因为:{}".format(result.get('errmsg')))
+        except DingTalkClientException as e:
+            raise UserError(e)
 
     @api.model
     def synchronous_dingding_category(self):
@@ -156,11 +155,10 @@ class DingDingSynchronous(models.TransientModel):
         :return:
         """
         logging.info(">>>同步钉钉联系人标签")
-
-        client = get_client(self)
-        result = client.ext.listlabelgroups(offset=0, size=100)
-        logging.info(result)
-        if result:
+        try:
+            client = get_client(self)
+            result = client.ext.listlabelgroups(offset=0, size=100)
+            logging.info(result)
             category_list = list()
             for res in result:
                 for labels in res.get('labels'):
@@ -177,8 +175,8 @@ class DingDingSynchronous(models.TransientModel):
                 else:
                     self.env['res.partner.category'].sudo().create(category)
             return True
-        else:
-            raise UserError("同步联系人标签时发生错误，原因为:{}".format(result.get('errmsg')))
+        except DingTalkClientException as e:
+            raise UserError(e)
 
     @api.model
     def synchronous_dingding_partner(self):
@@ -187,11 +185,10 @@ class DingDingSynchronous(models.TransientModel):
         :return:
         """
         logging.info(">>>同步钉钉联系人列表start")
-
-        client = get_client(self)
-        result = client.ext.list(offset=0, size=100)
-        logging.info(result)
-        if result:
+        try:
+            client = get_client(self)
+            result = client.ext.list(offset=0, size=100)
+            logging.info(result)
             for res in result:
                 # 获取标签
                 label_list = list()
@@ -223,9 +220,8 @@ class DingDingSynchronous(models.TransientModel):
                 else:
                     self.env['res.partner'].sudo().create(data)
             return True
-        else:
-            raise UserError("同步钉钉联系人失败，原因为:{}".format(result.get('errmsg')))
-
+        except DingTalkClientException as e:
+            raise UserError(e)
     @api.model
     def get_time_stamp(self, time_num):
         """

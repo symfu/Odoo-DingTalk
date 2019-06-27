@@ -2,10 +2,10 @@
 import json
 import logging
 import requests
-from requests import ReadTimeout
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from .dingtalk_client import get_client
+from dingtalk.core.exceptions import DingTalkClientException
 
 _logger = logging.getLogger(__name__)
 
@@ -62,8 +62,8 @@ class ResPartner(models.Model):
                     res.message_post(body=u"钉钉消息：联系人信息已上传至钉钉", message_type='notification')
                 else:
                     raise UserError('上传钉钉系统时发生错误，详情为:{}'.format(result.get('errmsg')))
-            except ReadTimeout:
-                raise UserError("上传联系人至钉钉超时！")
+            except DingTalkClientException as e:
+                raise UserError(e)
 
     # @api.multi
     # def update_ding_partner(self):

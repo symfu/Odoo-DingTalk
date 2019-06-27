@@ -3,10 +3,10 @@ import json
 import logging
 import requests
 import time
-from requests import ReadTimeout
 from odoo import api, fields, models, tools
 from odoo.exceptions import UserError
 from .dingtalk_client import get_client
+from dingtalk.core.exceptions import DingTalkClientException
 
 _logger = logging.getLogger(__name__)
 try:
@@ -70,8 +70,8 @@ class HrEmployee(models.Model):
                     res.message_post(body=u"钉钉消息：员工信息已上传至钉钉", message_type='notification')
                 else:
                     raise UserError('上传钉钉系统时发生错误，详情为:{}'.format(result.get('errmsg')))
-            except ReadTimeout:
-                raise UserError("上传员工至钉钉超时！")
+            except DingTalkClientException as e:
+                raise UserError(e)
 
     # 修改员工同步到钉钉
     @api.multi
@@ -112,8 +112,8 @@ class HrEmployee(models.Model):
                     res.message_post(body=u"新的信息已同步更新至钉钉", message_type='notification')
                 else:
                     raise UserError('上传钉钉系统时发生错误，详情为:{}'.format(result.get('errmsg')))
-            except ReadTimeout:
-                raise UserError("上传员工至钉钉超时！")
+            except DingTalkClientException as e:
+                raise UserError(e)
 
     @api.constrains('user_id')
     def constrains_dingding_user_id(self):
@@ -131,10 +131,10 @@ class HrEmployee(models.Model):
         :return:
         """
         for employee in self:
-            data = {'userid': employee.din_id}
+            userid = employee.din_id
             try:
                 client = get_client(self)
-                result = client.user.get(data)
+                result = client.user.get(userid)
                 if result.get('errcode') == 0:
                     data = {
                         'name': result.get('name'),  # 员工名称
@@ -175,8 +175,8 @@ class HrEmployee(models.Model):
                     _logger.info("从钉钉同步员工时发生意外，原因为:{}".format(result.get('errmsg')))
                     employee.message_post(body="从钉钉同步员工失败:{}".format(result.get('errmsg')), message_type='notification')
 
-            except ReadTimeout:
-                raise UserError("从钉钉同步员工详情超时！")
+            except DingTalkClientException as e:
+                raise UserError(e)
 
     # 重写删除方法
     @api.multi
@@ -201,8 +201,8 @@ class HrEmployee(models.Model):
             logging.info("user_delete:{}".format(result))
             if result.get('errcode') != 0:
                 raise UserError('删除钉钉用户时发生错误，详情为:{}'.format(result.get('errmsg')))
-        except ReadTimeout:
-            raise UserError("上传员工至钉钉超时！")
+        except DingTalkClientException as e:
+            raise UserError(e)
 
     def _compute_dingding_type(self):
         for res in self:

@@ -2,10 +2,10 @@
 import json
 import logging
 import requests
-from requests import ReadTimeout
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from .dingtalk_client import get_client
+from dingtalk.core.exceptions import DingTalkClientException
 
 _logger = logging.getLogger(__name__)
 
@@ -44,8 +44,8 @@ class HrDepartment(models.Model):
                     res.message_post(body=u"钉钉消息：部门信息已上传至钉钉", message_type='notification')
                 else:
                     raise UserError('上传钉钉系统时发生错误，详情为:{}'.format(result.get('errmsg')))
-            except ReadTimeout:
-                raise UserError("上传至钉钉网络超时！")
+            except DingTalkClientException as e:
+                raise UserError(e)
 
     @api.multi
     def update_ding_department(self):
@@ -67,8 +67,8 @@ class HrDepartment(models.Model):
                     res.message_post(body=u"钉钉消息：新的信息已同步更新至钉钉", message_type='notification')
                 else:
                     raise UserError('上传钉钉系统时发生错误，详情为:{}'.format(result.get('errmsg')))
-            except ReadTimeout:
-                raise UserError("上传至钉钉超时！")
+            except DingTalkClientException as e:
+                raise UserError(e)
 
     # 重写删除方法
     @api.multi
@@ -95,8 +95,8 @@ class HrDepartment(models.Model):
             logging.info(">>>删除钉钉部门返回结果:{}".format(result))
             if result.get('errcode') != 0:
                 raise UserError('删除钉钉部门时发生错误，详情为:{}'.format(result.get('errmsg')))
-        except ReadTimeout:
-            raise UserError("同步至钉钉超时！")
+        except DingTalkClientException as e:
+            raise UserError(e)
 
     def _compute_dingding_type(self):
         for res in self:
