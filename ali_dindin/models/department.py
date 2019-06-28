@@ -85,13 +85,9 @@ class HrDepartment(models.Model):
     @api.model
     def delete_din_department(self, din_id):
         """删除钉钉部门"""
-
-        data = {
-            'id': din_id,  # userid
-        }
         try:
             client = get_client(self)
-            result = client.department.delete(data)    
+            result = client.department.delete(din_id)    
             logging.info(">>>删除钉钉部门返回结果:{}".format(result))
             if result.get('errcode') != 0:
                 raise UserError('删除钉钉部门时发生错误，详情为:{}'.format(result.get('errmsg')))

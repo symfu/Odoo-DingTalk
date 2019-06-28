@@ -7,6 +7,7 @@ from odoo import api, fields, models, tools
 from odoo.exceptions import UserError
 from .dingtalk_client import get_client
 from dingtalk.core.exceptions import DingTalkClientException
+from dingtalk.client.api.taobao import TbDingDing
 
 _logger = logging.getLogger(__name__)
 try:
@@ -22,6 +23,7 @@ class HrEmployee(models.Model):
     din_unionid = fields.Char(string='钉钉唯一标识')
     din_jobnumber = fields.Char(string='钉钉员工工号')
     din_avatar = fields.Char(string='钉钉头像url')
+    din_face = fields.Binary(string='钉钉考勤人脸')
     din_hiredDate = fields.Datetime(string='入职时间')
     din_isAdmin = fields.Boolean("是管理员", default=False)
     din_isBoss = fields.Boolean("是老板", default=False)
@@ -178,6 +180,63 @@ class HrEmployee(models.Model):
             except DingTalkClientException as e:
                 raise UserError(e)
 
+    # 从钉钉手动获取用户人脸
+    @api.multi
+    def get_face_from_dingding(self):
+        """
+        从钉钉获取用户人脸
+        :return:
+        """
+        for employee in self:
+            userid = employee.din_id
+            try:
+                client = get_client(self)
+                result = client.ding.dingtalk_corp_smartdevice_getface(userid)
+                print('1111111111111111111111111',result)
+                # if result.get('errcode') == 0:
+                #     data = {
+                #         'name': result.get('name'),  # 员工名称
+                #         'din_id': result.get('userid'),  # 钉钉用户Id
+                #         'din_face': result.get('unionid'),  # 钉钉唯一标识
+                #         'mobile_phone': result.get('mobile'),  # 手机号
+                #         'work_phone': result.get('tel'),  # 分机号
+                #         'work_location': result.get('workPlace'),  # 办公地址
+                #         'notes': result.get('remark'),  # 备注
+                #         'job_title': result.get('position'),  # 职位
+                #         'work_email': result.get('email'),  # email
+                #         'din_jobnumber': result.get('jobnumber'),  # 工号
+                #         'din_avatar': result.get('avatar') if result.get('avatar') else '',  # 钉钉头像url
+                #         'din_isSenior': result.get('isSenior'),  # 高管模式
+                #         'din_isAdmin': result.get('isAdmin'),  # 是管理员
+                #         'din_isBoss': result.get('isBoss'),  # 是老板
+                #         'din_isHide': result.get('isHide'),  # 隐藏手机号
+                #         'din_active': result.get('active'),  # 是否激活
+                #         'din_isLeaderInDepts': result.get('isLeaderInDepts'),  # 是否为部门主管
+                #         'din_orderInDepts': result.get('orderInDepts'),  # 所在部门序位
+                #     }
+                #     # 支持显示国际手机号
+                #     if result.get('stateCode') != '86':
+                #         data.update({
+                #             'mobile_phone':'+{}-{}'.format(result.get('stateCode'), result.get('mobile')),
+                #         })
+                #     if result.get('hiredDate'):
+                #         date_str = self.get_time_stamp(result.get('hiredDate'))
+                #         data.update({
+                #             'din_hiredDate': date_str,
+                #         })
+                #     if result.get('department'):
+                #         dep_din_ids = result.get('department')
+                #         dep_list = self.env['hr.department'].sudo().search([('din_id', 'in', dep_din_ids)])
+                #         data.update({'department_ids': [(6, 0, dep_list.ids)]})
+                #     employee.sudo().write(data)
+                # else:
+                #     _logger.info("从钉钉同步员工时发生意外，原因为:{}".format(result.get('errmsg')))
+                #     employee.message_post(body="从钉钉同步员工失败:{}".format(result.get('errmsg')), message_type='notification')
+
+            except DingTalkClientException as e:
+                raise UserError(e)
+
+
     # 重写删除方法
     @api.multi
     def unlink(self):
@@ -215,6 +274,16 @@ class HrEmployee(models.Model):
             if emp.din_avatar:
                 binary_data = tools.image_resize_image_big(base64.b64encode(requests.get(emp.din_avatar).content))
                 emp.sudo().write({'image': binary_data})
+
+
+    # 单独获取M2人脸设为员工头像
+    @api.multi
+    def using_dingding_m2(self):
+        for emp in self:
+            if emp.din_face:
+                binary_data = tools.image_resize_image_big(emp.din_face)
+                emp.sudo().write({'image': binary_data})
+
 
     @api.model
     def get_time_stamp(self, time_num):
