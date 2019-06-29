@@ -6,7 +6,6 @@ import time
 from odoo import api, fields, models, tools
 from odoo.exceptions import UserError
 from .dingtalk_client import get_client
-from dingtalk.core.exceptions import DingTalkClientException
 from dingtalk.client.api.taobao import TbDingDing
 
 _logger = logging.getLogger(__name__)
@@ -72,7 +71,7 @@ class HrEmployee(models.Model):
                     res.message_post(body=u"钉钉消息：员工信息已上传至钉钉", message_type='notification')
                 else:
                     raise UserError('上传钉钉系统时发生错误，详情为:{}'.format(result.get('errmsg')))
-            except DingTalkClientException as e:
+            except Exception as e:
                 raise UserError(e)
 
     # 修改员工同步到钉钉
@@ -114,7 +113,7 @@ class HrEmployee(models.Model):
                     res.message_post(body=u"新的信息已同步更新至钉钉", message_type='notification')
                 else:
                     raise UserError('上传钉钉系统时发生错误，详情为:{}'.format(result.get('errmsg')))
-            except DingTalkClientException as e:
+            except Exception as e:
                 raise UserError(e)
 
     @api.constrains('user_id')
@@ -177,7 +176,7 @@ class HrEmployee(models.Model):
                     _logger.info("从钉钉同步员工时发生意外，原因为:{}".format(result.get('errmsg')))
                     employee.message_post(body="从钉钉同步员工失败:{}".format(result.get('errmsg')), message_type='notification')
 
-            except DingTalkClientException as e:
+            except Exception as e:
                 raise UserError(e)
 
     # 从钉钉手动获取用户人脸
@@ -233,7 +232,7 @@ class HrEmployee(models.Model):
                 #     _logger.info("从钉钉同步员工时发生意外，原因为:{}".format(result.get('errmsg')))
                 #     employee.message_post(body="从钉钉同步员工失败:{}".format(result.get('errmsg')), message_type='notification')
 
-            except DingTalkClientException as e:
+            except Exception as e:
                 raise UserError(e)
 
 
@@ -260,7 +259,7 @@ class HrEmployee(models.Model):
             logging.info("user_delete:{}".format(result))
             if result.get('errcode') != 0:
                 raise UserError('删除钉钉用户时发生错误，详情为:{}'.format(result.get('errmsg')))
-        except DingTalkClientException as e:
+        except Exception as e:
             raise UserError(e)
 
     def _compute_dingding_type(self):

@@ -7,7 +7,6 @@ import requests
 from odoo import api, fields, models, tools
 from odoo.exceptions import UserError
 from .dingtalk_client import get_client
-from dingtalk.core.exceptions import DingTalkClientException
 
 _logger = logging.getLogger(__name__)
 
@@ -64,7 +63,7 @@ class DingDingSynchronous(models.TransientModel):
                 else:
                     self.env['hr.department'].create(data)
             return True
-        except DingTalkClientException as e:
+        except Exception as e:
             raise UserError(e)
 
     @api.model
@@ -145,7 +144,7 @@ class DingDingSynchronous(models.TransientModel):
                 else:
                     self.env['hr.employee'].sudo().create(data)
             return result.get('hasMore')
-        except DingTalkClientException as e:
+        except Exception as e:
             raise UserError(e)
 
     @api.model
@@ -175,7 +174,7 @@ class DingDingSynchronous(models.TransientModel):
                 else:
                     self.env['res.partner.category'].sudo().create(category)
             return True
-        except DingTalkClientException as e:
+        except Exception as e:
             raise UserError(e)
 
     @api.model
@@ -201,26 +200,31 @@ class DingDingSynchronous(models.TransientModel):
                     'name': res.get('name'),
                     'function': res.get('title'),
                     'category_id': [(6, 0, label_list)],  # 标签
-                    'din_userid': res.get('userid'),  # 钉钉用户id
+                    'din_userid': res.get('userId'),  # 钉钉用户id
                     'comment': res.get('remark'),  # 备注
                     'street': res.get('address'),  # 地址
                     'mobile': res.get('mobile'),  # 手机
                     'phone': res.get('mobile'),  # 电话
-                    'din_company_name': res.get('company_name'),  # 钉钉公司名称
+                    'din_company_name': res.get('companyName'),  # 钉钉公司名称
                 }
                 # 获取负责人
                 if res.get('followerUserId'):
                     follower_user = self.env['hr.employee'].sudo().search(
                         [('din_id', '=', res.get('followerUserId'))])
                     data.update({'din_employee_id': follower_user[0].id if follower_user else ''})
+                # 获取共享范围
+                if res.get('shareDeptIds'):
+                        dep_din_ids = res.get('shareDeptIds')
+                        dep_list = self.env['hr.department'].sudo().search([('din_id', 'in', dep_din_ids)])
+                        data.update({'din_share_department_ids': [(6, 0, dep_list.ids)]})
                 # 根据userid查询联系人是否存在
-                partner = self.env['res.partner'].sudo().search(['|', ('din_userid', '=', res.get('userid')), ('name', '=', res.get('name'))])
+                partner = self.env['res.partner'].sudo().search(['|', ('din_userid', '=', res.get('userId')), ('name', '=', res.get('name'))])
                 if partner:
                     partner.sudo().write(data)
                 else:
                     self.env['res.partner'].sudo().create(data)
             return True
-        except DingTalkClientException as e:
+        except Exception as e:
             raise UserError(e)
     @api.model
     def get_time_stamp(self, time_num):

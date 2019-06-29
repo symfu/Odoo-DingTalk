@@ -35,6 +35,7 @@
                 <newline/>
                 <field name="din_company_name"/>
                 <field name="din_employee_id"/>
+                <field name="din_share_department_ids" widget="many2many_tags"/>
             </xpath>
             <xpath expr="//sheet" position="before">
                 <header>
