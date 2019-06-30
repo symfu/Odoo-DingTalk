@@ -45,9 +45,9 @@ class DinDinSimpleGroups(models.Model):
             result = client.attendance.getsimplegroups()
             logging.info(">>>获取考勤组列表返回结果{}".format(result))
 
-            if result.get('errcode') == 0:
+            if result.get('ding_open_errcode') == 0:
                 result = result.get('result')
-                for group in result.get('groups'):
+                for group in result.get('groups').get('at_group_for_top_vo'):
                     data = {
                         'group_id': group.get('group_id'),
                         'name': group.get('group_name'),
