@@ -5,6 +5,7 @@ import requests
 from requests import ReadTimeout
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+from odoo.addons.ali_dindin.models.dingtalk_client import get_client
 
 _logger = logging.getLogger(__name__)
 
@@ -35,21 +36,15 @@ class DinDinSimpleGroups(models.Model):
     @api.model
     def get_simple_groups(self):
         """
-        获取考勤组
+        获取企业考勤组列表
         :return:
         """
         logging.info(">>>获取考勤组...")
-        url = self.env['ali.dindin.system.conf'].search([('key', '=', 'attendance_getsimplegroups')]).value
-        token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
-        data = {
-            'offset': 0,
-            'size': 10,
-        }
-        headers = {'Content-Type': 'application/json'}
         try:
-            result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=15)
-            result = json.loads(result.text)
-            logging.info(result)
+            client = get_client(self)
+            result = client.attendance.getsimplegroups()
+            logging.info(">>>获取考勤组列表返回结果{}".format(result))
+
             if result.get('errcode') == 0:
                 result = result.get('result')
                 for group in result.get('groups'):
@@ -73,8 +68,8 @@ class DinDinSimpleGroups(models.Model):
                         self.env['dindin.simple.groups'].sudo().create(data)
             else:
                 raise UserError('获取考勤组失败，详情为:{}'.format(result.get('errmsg')))
-        except ReadTimeout:
-            raise UserError("网络连接超时！")
+        except Exception as e:
+            raise UserError(e)
         logging.info(">>>获取考勤组结束...")
         return True
 

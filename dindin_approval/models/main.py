@@ -5,6 +5,7 @@ import requests
 from requests import ReadTimeout
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+from odoo.addons.ali_dindin.models.dingtalk_client import get_client
 
 _logger = logging.getLogger(__name__)
 
@@ -55,36 +56,27 @@ class DinDinApprovalMain(models.Model):
     @api.model
     def _summit_din_approval(self, process_code, user_id, dept_id, approvers, cc_list, form_values):
         """
-        提交到钉钉进行审批
-        :param process_code:审批模型编码
+        提交到钉钉进行审批（发起审批实例）
+        :param process_code:审批模板唯一标识
         :param user_id:发起人userid
         :param dept_id:发起人部门id
-        :param approvers:抄送人
-        :param cc_list:抄送人
+        :param approvers:审批人列表
+        :param cc_list:抄送人列表
         :param form_values:表单参数
-        :return: 审批实例id
+        :return: process_instance_id （审批实例id）
         """
-        url = self.env['ali.dindin.system.conf'].search([('key', '=', 'processinstance_create')]).value
-        token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
-        data = {
-            'process_code': process_code,  # 审批模型编码
-            'originator_user_id': user_id,  # 发起人userid
-            'dept_id': dept_id,  # 发起人部门id
-            'approvers': approvers,  # 审批人
-            'cc_list': cc_list,  # 抄送人
-            'form_component_values': form_values  # 表单参数
-        }
-        headers = {'Content-Type': 'application/json'}
         try:
-            result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=5)
-            result = json.loads(result.text)
+            client = get_client(self)
+            result = client.bpms.processinstance_create(process_code, user_id, dept_id, approvers, form_values,
+                               agent_id=None, cc_list=cc_list, cc_start=False, cc_finish=False, approvers_v2=())
+
             logging.info(">>>提交审批到钉钉返回结果{}".format(result))
             if result.get('errcode') == 0:
                 return result.get('process_instance_id')
             else:
                 raise UserError('提交审批失败，详情为:{}'.format(result.get('errmsg')))
-        except ReadTimeout:
-            raise UserError("网络连接超时！")
+        except Exception as e:
+            raise UserError(e)
 
     @api.model
     def _check_oa_model(self, model_name):

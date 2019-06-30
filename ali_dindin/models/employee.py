@@ -190,48 +190,8 @@ class HrEmployee(models.Model):
             userid = employee.din_id
             try:
                 client = get_client(self)
-                result = client.ding.dingtalk_corp_smartdevice_getface(userid)
-                print('1111111111111111111111111',result)
-                # if result.get('errcode') == 0:
-                #     data = {
-                #         'name': result.get('name'),  # 员工名称
-                #         'din_id': result.get('userid'),  # 钉钉用户Id
-                #         'din_face': result.get('unionid'),  # 钉钉唯一标识
-                #         'mobile_phone': result.get('mobile'),  # 手机号
-                #         'work_phone': result.get('tel'),  # 分机号
-                #         'work_location': result.get('workPlace'),  # 办公地址
-                #         'notes': result.get('remark'),  # 备注
-                #         'job_title': result.get('position'),  # 职位
-                #         'work_email': result.get('email'),  # email
-                #         'din_jobnumber': result.get('jobnumber'),  # 工号
-                #         'din_avatar': result.get('avatar') if result.get('avatar') else '',  # 钉钉头像url
-                #         'din_isSenior': result.get('isSenior'),  # 高管模式
-                #         'din_isAdmin': result.get('isAdmin'),  # 是管理员
-                #         'din_isBoss': result.get('isBoss'),  # 是老板
-                #         'din_isHide': result.get('isHide'),  # 隐藏手机号
-                #         'din_active': result.get('active'),  # 是否激活
-                #         'din_isLeaderInDepts': result.get('isLeaderInDepts'),  # 是否为部门主管
-                #         'din_orderInDepts': result.get('orderInDepts'),  # 所在部门序位
-                #     }
-                #     # 支持显示国际手机号
-                #     if result.get('stateCode') != '86':
-                #         data.update({
-                #             'mobile_phone':'+{}-{}'.format(result.get('stateCode'), result.get('mobile')),
-                #         })
-                #     if result.get('hiredDate'):
-                #         date_str = self.get_time_stamp(result.get('hiredDate'))
-                #         data.update({
-                #             'din_hiredDate': date_str,
-                #         })
-                #     if result.get('department'):
-                #         dep_din_ids = result.get('department')
-                #         dep_list = self.env['hr.department'].sudo().search([('din_id', 'in', dep_din_ids)])
-                #         data.update({'department_ids': [(6, 0, dep_list.ids)]})
-                #     employee.sudo().write(data)
-                # else:
-                #     _logger.info("从钉钉同步员工时发生意外，原因为:{}".format(result.get('errmsg')))
-                #     employee.message_post(body="从钉钉同步员工失败:{}".format(result.get('errmsg')), message_type='notification')
-
+                result = client.tbdingding.dingtalk_corp_smartdevice_getface(userid)
+                logging.info("获取人脸返回结果:{}".format(result))
             except Exception as e:
                 raise UserError(e)
 

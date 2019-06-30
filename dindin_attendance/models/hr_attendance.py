@@ -7,7 +7,7 @@ from requests import ReadTimeout
 from datetime import datetime, timedelta
 from odoo.exceptions import UserError
 from odoo import models, fields, api
-
+from odoo.addons.ali_dindin.models.dingtalk_client import get_client
 
 class HrEmployee(models.Model):
     _inherit = "hr.employee"
@@ -124,14 +124,14 @@ class HrAttendanceTransient(models.TransientModel):
                         else:
                             work_data_to_mid = work_data_from + delta
                         while (work_data_from < work_data_to):
-                            data = {
-                                'workDateFrom': str(work_data_from),  
-                                'workDateTo': str(work_data_to_mid),  
-                                'userIdList': user_list,  
-                                'offset': offset,
-                                'limit': limit,
-                            }
-                            has_more = self.send_post_dindin(data)
+
+                            workDateFrom=str(work_data_from) 
+                            workDateTo=str(work_data_to_mid) 
+                            userIdList=user_list
+                            offset=offset
+                            limit=limit
+
+                            has_more = self.self.attendance_list(workDateFrom, workDateTo, user_ids=userIdList, offset=offset, limit=limit)
                             work_data_from = work_data_to_mid + timedelta(days=1)
                             work_data_to_mid += delta
 
@@ -152,14 +152,14 @@ class HrAttendanceTransient(models.TransientModel):
                         else:
                             work_data_to_mid = work_data_from + delta
                         while (work_data_from < work_data_to):
-                            data = {
-                                'workDateFrom': str(work_data_from),  
-                                'workDateTo': str(work_data_to_mid),  
-                                'userIdList': u,  
-                                'offset': offset,
-                                'limit': limit,
-                            }
-                            has_more = self.send_post_dindin(data)
+
+                            workDateFrom = str(work_data_from)
+                            workDateTo = str(work_data_to_mid)
+                            userIdList = u 
+                            offset = offset
+                            limit = limit
+
+                            has_more = self.self.self.attendance_list(workDateFrom, workDateTo, user_ids=userIdList, offset=offset, limit=limit)
                             work_data_from = work_data_to_mid + timedelta(days=1)
                             work_data_to_mid += delta
                         if not has_more:
@@ -172,13 +172,20 @@ class HrAttendanceTransient(models.TransientModel):
         return action_dict
 
     @api.model
-    def send_post_dindin(self, data):
-        url = self.env['ali.dindin.system.conf'].search([('key', '=', 'attendance_list')]).value
-        token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
-        headers = {'Content-Type': 'application/json'}
+    def attendance_list(self, work_date_from, work_date_to, user_ids=(), offset=0, limit=50):
+        """
+        考勤打卡数据开放
+        :param work_date_from: 查询考勤打卡记录的起始工作日
+        :param work_date_to: 查询考勤打卡记录的结束工作日
+        :param user_ids: 员工在企业内的UserID列表，企业用来唯一标识用户的字段
+        :param offset: 表示获取考勤数据的起始点，第一次传0，如果还有多余数据，下次获取传的offset值为之前的offset+limit
+        :param limit: 表示获取考勤数据的条数，最大不能超过50条
+        :return:
+        """
         try:
-            result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=15)
-            result = json.loads(result.text)
+            client = get_client(self)
+            result = client.attendance.list(work_date_from, work_date_to, user_ids=user_ids, offset=offset, limit=limit)
+            logging.info(">>>获取考勤返回结果{}".format(result))
             if result.get('errcode') == 0:
                 for rec in result.get('recordresult'):
                         data = {
@@ -209,8 +216,8 @@ class HrAttendanceTransient(models.TransientModel):
                     return False
             else:
                 raise UserError('请求失败,原因为:{}'.format(result.get('errmsg')))
-        except ReadTimeout:
-            raise UserError("网络连接超时！")
+        except Exception as e:
+            raise UserError(e)
 
     @api.model
     def get_time_stamp(self, timeNum):

@@ -14,7 +14,6 @@
     'data': [
         'security/ir.model.access.csv',
         'security/dindin_security.xml',
-        'data/system_conf.xml',
         'views/web_widget.xml',
         'views/menu.xml',
         'views/systemc_conf.xml',

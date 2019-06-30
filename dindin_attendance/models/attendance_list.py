@@ -6,6 +6,7 @@ import requests
 from requests import ReadTimeout
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+from odoo.addons.ali_dindin.models.dingtalk_client import get_client
 
 _logger = logging.getLogger(__name__)
 # 已弃用，已经钉钉考勤整合至odoo考勤
@@ -97,14 +98,12 @@ class DinDinAttendanceList(models.Model):
                 offset = 0
                 limit = 50
                 while True:
-                    data = {
-                        'workDateFrom': start_date + ' 00:00:00',  # 开始日期
-                        'workDateTo': end_date + ' 00:00:00',  # 结束日期
-                        'userIdList': user_list,  # 员工列表
-                        'offset': offset,  # 开始日期
-                        'limit': limit,  # 开始日期
-                    }
-                    has_more = self.send_post_dindin(data)
+                    workDateFrom = start_date + ' 00:00:00'  # 开始日期
+                    workDateTo = end_date + ' 00:00:00'  # 结束日期
+                    userIdList = user_list  # 员工列表
+                    offset = offset  # 开始日期
+                    limit = limit  # 开始日期
+                    has_more = self.attendance_list(workDateFrom, workDateTo, user_ids=userIdList, offset=offset, limit=limit)
                     if not has_more:
                         break
                     else:
@@ -114,14 +113,12 @@ class DinDinAttendanceList(models.Model):
                 offset = 0
                 limit = 50
                 while True:
-                    data = {
-                        'workDateFrom': start_date + ' 00:00:00',  # 开始日期
-                        'workDateTo': end_date + ' 00:00:00',  # 结束日期
-                        'userIdList': u,  # 员工列表
-                        'offset': offset,  # 开始日期
-                        'limit': limit,  # 开始日期
-                    }
-                    has_more = self.send_post_dindin(data)
+                    workDateFrom = start_date + ' 00:00:00'  # 开始日期
+                    workDateTo = end_date + ' 00:00:00'  # 结束日期
+                    userIdList = u  # 员工列表
+                    offset = offset  # 开始日期
+                    limit = limit  # 开始日期
+                    has_more = self.attendance_list(workDateFrom, workDateTo, user_ids=userIdList, offset=offset, limit=limit)
                     if not has_more:
                         break
                     else:
@@ -130,14 +127,20 @@ class DinDinAttendanceList(models.Model):
         return {'state': True, 'msg': '执行成功'}
 
     @api.model
-    def send_post_dindin(self, data):
-        url = self.env['ali.dindin.system.conf'].search([('key', '=', 'attendance_list')]).value
-        token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
-        headers = {'Content-Type': 'application/json'}
+    def attendance_list(self, work_date_from, work_date_to, user_ids=(), offset=0, limit=50):
+        """
+        考勤打卡数据开放
+        :param work_date_from: 查询考勤打卡记录的起始工作日
+        :param work_date_to: 查询考勤打卡记录的结束工作日
+        :param user_ids: 员工在企业内的UserID列表，企业用来唯一标识用户的字段
+        :param offset: 表示获取考勤数据的起始点，第一次传0，如果还有多余数据，下次获取传的offset值为之前的offset+limit
+        :param limit: 表示获取考勤数据的条数，最大不能超过50条
+        :return:
+        """
         try:
-            result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=15)
-            result = json.loads(result.text)
-            logging.info(result)
+            client = get_client(self)
+            result = client.attendance.list(work_date_from, work_date_to, user_ids=user_ids, offset=offset, limit=limit)
+            logging.info(">>>获取考勤返回结果{}".format(result))
             if result.get('errcode') == 0:
                 for rec in result.get('recordresult'):
                     data = {
@@ -168,8 +171,8 @@ class DinDinAttendanceList(models.Model):
                     return False
             else:
                 raise UserError('请求失败,原因为:{}'.format(result.get('errmsg')))
-        except ReadTimeout:
-            raise UserError("网络连接超时！")
+        except Exception as e:
+            raise UserError(e)
 
     @api.model
     def get_time_stamp(self, timeNum):
