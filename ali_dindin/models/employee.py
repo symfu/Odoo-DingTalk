@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import json
 import logging
-import requests
 import time
+import requests
 from odoo import api, fields, models, tools
 from odoo.exceptions import UserError
 from .dingtalk_client import get_client
