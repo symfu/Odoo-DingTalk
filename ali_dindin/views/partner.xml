@@ -36,6 +36,7 @@
                 <field name="din_company_name"/>
                 <field name="din_employee_id"/>
                 <field name="din_share_department_ids" widget="many2many_tags"/>
+                <field name="din_share_employee_ids" widget="many2many_tags"/>
             </xpath>
             <xpath expr="//sheet" position="before">
                 <header>
@@ -45,6 +46,17 @@
                             confirm="系统将新的信息上传至钉钉,确认?" groups="ali_dindin.dd_update_group"/>
                 </header>
             </xpath>
+        </field>
+    </record>
+
+    <record id='get_partner_from_dingding_action' model='ir.actions.server'>
+        <field name='name'>从钉钉更新</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="binding_model_id" ref="model_res_partner"/>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records.get_dingding_partner()
         </field>
     </record>
 

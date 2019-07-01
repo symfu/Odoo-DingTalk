@@ -216,7 +216,12 @@ class DingDingSynchronous(models.TransientModel):
                 if res.get('shareDeptIds'):
                         dep_din_ids = res.get('shareDeptIds')
                         dep_list = self.env['hr.department'].sudo().search([('din_id', 'in', dep_din_ids)])
-                        data.update({'din_share_department_ids': [(6, 0, dep_list.ids)]})
+                        data.update({'din_share_department_ids': [(6, 0, dep_list.ids)]if dep_list else ''})
+                # 获取共享员工
+                if res.get('shareUserIds'):
+                        emp_din_ids = res.get('shareUserIds')
+                        emp_list = self.env['hr.employee'].sudo().search([('din_id', 'in', emp_din_ids)])
+                        data.update({'din_share_employee_ids': [(6, 0, emp_list.ids)] if emp_list else ''})
                 # 根据userid查询联系人是否存在
                 partner = self.env['res.partner'].sudo().search(['|', ('din_userid', '=', res.get('userId')), ('name', '=', res.get('name'))])
                 if partner:
@@ -226,6 +231,7 @@ class DingDingSynchronous(models.TransientModel):
             return True
         except Exception as e:
             raise UserError(e)
+
     @api.model
     def get_time_stamp(self, time_num):
         """
