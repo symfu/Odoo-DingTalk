@@ -49,4 +49,15 @@
         </field>
     </record>
 
+    <record id='get_partner_from_dingding_action' model='ir.actions.server'>
+        <field name='name'>从钉钉更新</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="binding_model_id" ref="model_res_partner"/>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records.get_dingding_partner()
+        </field>
+    </record>
+
 </odoo>
