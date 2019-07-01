@@ -148,8 +148,8 @@ class ResPartner(models.Model):
             'company_name': '新时代电脑', 
             'follower_user_id': '01454209426971', 
             'label_ids': {'number': [136234018, 136234017, 136234029]}, 
-            'mobile': '18968897668', 
-            'name': '曾为龙', 
+            'mobile': '1896889****', 
+            'name': '曾**', 
             'remark': '电脑维保', 
             'share_dept_ids': {'number': [108280604]}, 
             'share_user_ids': {}, 
@@ -166,10 +166,9 @@ class ResPartner(models.Model):
                 result = client.tbdingding.dingtalk_corp_extcontact_get(userid)
                 logging.info(">>>获取外部联系人返回结果:{}".format(result))
                 if result.get('ding_open_errcode') == 0:
-                    result = result.get('result')
                     # 获取标签
                     label_list = list()
-                    for label in result.get('label_ids').get('number'):
+                    for label in result.get('label_ids'):
                         category = self.env['res.partner.category'].sudo().search(
                             [('din_id', '=', label)])
                         if category:
@@ -178,7 +177,6 @@ class ResPartner(models.Model):
                         'name': result.get('name'),
                         'function': result.get('title'),
                         'category_id': [(6, 0, label_list)],  # 标签
-                        'din_userid': result.get('userId'),  # 钉钉用户id
                         'comment': result.get('remark'),  # 备注
                         'street': result.get('address'),  # 地址
                         'mobile': result.get('mobile'),  # 手机
@@ -191,16 +189,15 @@ class ResPartner(models.Model):
                             [('din_id', '=', result.get('follower_user_id'))])
                         data.update({'din_employee_id': follower_user[0].id if follower_user else ''})
                     # 获取共享范围
-                    if result.get('shareDeptIds'):
+                    if result.get('share_dept_ids'):
                             dep_din_ids = result.get('shareDeptIds')
                             dep_list = self.env['hr.department'].sudo().search([('din_id', 'in', dep_din_ids)])
                             data.update({'din_share_department_ids': [(6, 0, dep_list.ids)] if dep_list else ''})
                     # 获取共享员工
-                    if result.get('shareUserIds'):
-                            emp_din_ids = result.get('shareUserIds')
+                    if result.get('share_user_ids'):
+                            emp_din_ids = result.get('share_user_ids')
                             emp_list = self.env['hr.employee'].sudo().search([('din_id', 'in', emp_din_ids)])
                             data.update({'din_share_employee_ids': [(6, 0, emp_list.ids)] if emp_list else ''})
-                    # 根据userid查询联系人是否存在
                     partner.sudo().write(data)
                 else:
                     _logger.info("从钉钉同步联系人时发生意外，原因为:{}".format(result.get('errmsg')))
