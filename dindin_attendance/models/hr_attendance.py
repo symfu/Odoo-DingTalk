@@ -131,7 +131,7 @@ class HrAttendanceTransient(models.TransientModel):
                             offset=offset
                             limit=limit
 
-                            has_more = self.self.attendance_list(workDateFrom, workDateTo, user_ids=userIdList, offset=offset, limit=limit)
+                            has_more = self.attendance_list(workDateFrom, workDateTo, user_ids=userIdList, offset=offset, limit=limit)
                             work_data_from = work_data_to_mid + timedelta(days=1)
                             work_data_to_mid += delta
 
@@ -159,7 +159,7 @@ class HrAttendanceTransient(models.TransientModel):
                             offset = offset
                             limit = limit
 
-                            has_more = self.self.self.attendance_list(workDateFrom, workDateTo, user_ids=userIdList, offset=offset, limit=limit)
+                            has_more = self.self.attendance_list(workDateFrom, workDateTo, user_ids=userIdList, offset=offset, limit=limit)
                             work_data_from = work_data_to_mid + timedelta(days=1)
                             work_data_to_mid += delta
                         if not has_more:
