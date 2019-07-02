@@ -6,6 +6,7 @@ import time
 from requests import ReadTimeout
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+from odoo.addons.ali_dindin.models.dingtalk_client import get_client
 
 _logger = logging.getLogger(__name__)
 
@@ -46,7 +47,8 @@ class DingDingReportUser(models.Model):
         """
         for res in self:
             url = self.env['ali.dindin.system.conf'].search([('key', '=', 'report_statistics')]).value
-            token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
+            # token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
+            token = get_client(self).get_access_token().get('access_token')
             data = {
                 'report_id': res.report_id,
             }
@@ -83,7 +85,8 @@ class DingDingReportUser(models.Model):
         :return:
         """
         url = self.env['ali.dindin.system.conf'].search([('key', '=', 'report_statistics_listbytype')]).value
-        token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
+        # token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
+        token = get_client(self).get_access_token().get('access_token')
         # 获取已读人员
         data = {
             'report_id': res.report_id,
@@ -139,7 +142,8 @@ class DingDingReportUser(models.Model):
         :return:
         """
         url = self.env['ali.dindin.system.conf'].search([('key', '=', 'report_receiver_list')]).value
-        token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
+        # token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
+        token = get_client(self).get_access_token().get('access_token')
         data = {
             'report_id': res.report_id,
         }
@@ -169,7 +173,8 @@ class DingDingReportUser(models.Model):
         :return:
         """
         url = self.env['ali.dindin.system.conf'].search([('key', '=', 'report_comment_list')]).value
-        token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
+        # token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
+        token = get_client(self).get_access_token().get('access_token')
         data = {
             'report_id': self.report_id,
         }
@@ -230,7 +235,8 @@ class GetUserDingDingReportList(models.TransientModel):
             if not group:
                 raise UserError("不好意思，你没有权限进行本操作！")
             url = self.env['ali.dindin.system.conf'].search([('key', '=', 'report_list')]).value
-            token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
+            # token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
+            token = get_client(self).get_access_token().get('access_token')
             cursor = 0
             size = 20
             while True:
