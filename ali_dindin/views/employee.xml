@@ -99,4 +99,14 @@ if records:
         </field>
     </record>
 
+    <record id='has_face_from_dingding_action' model='ir.actions.server'>
+        <field name='name'>查询是否录了人脸[暂未开放]</field>
+        <field name="model_id" ref="hr.model_hr_employee"/>
+        <field name="binding_model_id" ref="model_hr_employee"/>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records.has_face_from_dingding()
+        </field>
+    </record>
 </odoo>

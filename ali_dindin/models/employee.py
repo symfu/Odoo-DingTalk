@@ -195,6 +195,27 @@ class HrEmployee(models.Model):
             except Exception as e:
                 raise UserError(e)
 
+    # 检查是否录入人脸
+    @api.multi
+    def has_face_from_dingding(self):
+        """
+        查询企业员工是否已录入人脸
+        开通人脸识别的企业中，会存在部分用户录入照片，此接口用于批量查看员工是否已录入照片
+        文档地址：https://open-doc.dingtalk.com/docs/api.htm?apiId=33401
+
+        :param userid_list: 查询用userid列表
+        """
+        userlist = list()
+        for employee in self:
+            emp = self.env['hr.employee'].sudo().search([('din_id', '=', employee.din_id)])
+            userlist.append(emp.din_id)
+        if userlist:
+            try:
+                client = get_client(self)
+                result = client.tbdingding.dingtalk_corp_smartdevice_hasface(userlist)
+                logging.info("查询人脸返回结果:{}".format(result))
+            except Exception as e:
+                raise UserError(e)
 
     # 重写删除方法
     @api.multi

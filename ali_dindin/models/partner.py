@@ -110,6 +110,7 @@ class ResPartner(models.Model):
                 client = get_client(self)
                 result = client.tbdingding.dingtalk_corp_ext_update(data)
                 logging.info("更新联系人返回结果:{}".format(result))
+                res.message_post(body=u"钉钉消息：联系人信息已更新至钉钉", message_type='notification')
             except Exception as e:
                 raise UserError(e)
 
@@ -199,6 +200,7 @@ class ResPartner(models.Model):
                             emp_list = self.env['hr.employee'].sudo().search([('din_id', 'in', emp_din_ids)])
                             data.update({'din_share_employee_ids': [(6, 0, emp_list.ids)] if emp_list else ''})
                     partner.sudo().write(data)
+                    partner.message_post(body=u"钉钉消息：已从钉钉同步联系人信息", message_type='notification')
                 else:
                     _logger.info("从钉钉同步联系人时发生意外，原因为:{}".format(result.get('errmsg')))
                     partner.message_post(body="从钉钉同步联系人失败:{}".format(result.get('errmsg')), message_type='notification')
