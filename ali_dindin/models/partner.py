@@ -50,7 +50,7 @@ class ResPartner(models.Model):
                 'label_ids': label_list,  # 标签列表
                 'address': res.street if res.street else '',  # 地址
                 'remark': res.comment if res.comment else '',  # 备注
-                'follower_userid': res.din_employee_id.din_id,  # 负责人userid
+                'follower_user_id': res.din_employee_id.din_id,  # 负责人userid
                 'state_code': '86',  # 手机号国家码
                 'company_name': res.din_company_name if res.din_company_name else '',  # 钉钉企业公司名称
                 'mobile': res.mobile if res.mobile else res.phone,  # 手机
@@ -67,7 +67,7 @@ class ResPartner(models.Model):
             logging.info("data返回结果:{}".format(data))
             try:
                 client = get_client(self)
-                result = client.tbdingding.dingtalk_corp_ext_add(data)
+                result = client.tbdingding.dingtalk_corp_extcontact_create(data)
                 logging.info("创建联系人返回结果:{}".format(result))
                 res.write({'din_userid': result})
                 res.message_post(body=u"钉钉消息：联系人信息已上传至钉钉", message_type='notification')
@@ -108,7 +108,7 @@ class ResPartner(models.Model):
             logging.info("data返回结果:{}".format(data))
             try:
                 client = get_client(self)
-                result = client.tbdingding.dingtalk_corp_ext_update(data)
+                result = client.tbdingding.dingtalk_corp_extcontact_update(data)
                 logging.info("更新联系人返回结果:{}".format(result))
                 res.message_post(body=u"钉钉消息：联系人信息已更新至钉钉", message_type='notification')
             except Exception as e:

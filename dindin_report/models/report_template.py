@@ -5,6 +5,7 @@ import requests
 from requests import ReadTimeout
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+from odoo.addons.ali_dindin.models.dingtalk_client import get_client
 
 _logger = logging.getLogger(__name__)
 
@@ -22,65 +23,59 @@ class DingDingReportTemplate(models.Model):
 
     @api.model
     def get_all_template(self):
-        """获取日志模板"""
+        """
+        根据用户id获取可见的日志模板列表
+        根据用户userId获取当前企业下可见的日志模板列表
+        文档地址：https://open-doc.dingtalk.com/docs/api.htm?apiId=36909
+
+        :param userid: 员工userId, 不传递表示获取所有日志模板
+        :param offset: 分页游标，从0开始。根据返回结果里的next_cursor是否为空来判断是否还有下一页，且再次调用时offset设置成next_cursor的值
+        :param size: 分页大小，最大可设置成100
+        """
         group = self.env.user.has_group('dindin_report.dd_get_report_templategroup')
         if not group:
             raise UserError("不好意思，你没有权限进行本操作！")
-        url = self.env['ali.dindin.system.conf'].search([('key', '=', 'report_template_listbyuserid')]).value
-        token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
-        data = {
-            'offset': 0,
-            'size': 100,
-        }
-        headers = {'Content-Type': 'application/json'}
         try:
-            result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=5)
-            result = json.loads(result.text)
-            if result.get('errcode') == 0:
-                d_res = result.get('result')
-                for report in d_res.get('template_list'):
-                    data = {
-                        'name': report.get('name'),
-                        'icon_url': report.get('icon_url'),
-                        'report_code': report.get('report_code'),
-                        'url': report.get('url'),
-                    }
-                    template = self.env['dingding.report.template'].search(
-                        [('report_code', '=', report.get('report_code'))])
-                    if template:
-                        template.write(data)
-                    else:
-                        self.env['dingding.report.template'].create(data)
-            else:
-                raise UserError('获取日志模板失败，详情为:{}'.format(result.get('errmsg')))
-        except ReadTimeout:
-            raise UserError("网络连接超时！")
+            client = get_client(self)
+            result = client.tbdingding.dingtalk_oapi_report_template_listbyuserid()
+            logging.info(">>>获取日志模板返回结果:{}".format(result))
+            d_res = result['template_list']['report_template_top_vo']
+            for report in d_res:
+                data = {
+                    'name': report.get('name'),
+                    'icon_url': report.get('icon_url'),
+                    'report_code': report.get('report_code'),
+                    'url': report.get('url'),
+                }
+                template = self.env['dingding.report.template'].search(
+                    [('report_code', '=', report.get('report_code'))])
+                if template:
+                    template.write(data)
+                else:
+                    self.env['dingding.report.template'].create(data)
+        except Exception as e:
+            raise UserError(e)
 
     @api.model
     def get_user_unread_count(self):
         """
-        根据当前用户获取该用户的未读日志数量
-        :return:
+        查询企业员工的日志未读数
+        文档地址：https://open-doc.dingtalk.com/docs/api.htm?apiId=37189
+
+        :param userid: 员工id
         """
         emp = self.env['hr.employee'].sudo().search([('user_id', '=', self.env.user.id)])
         if len(emp) > 1:
             return {'state': False, 'number': 0, 'msg': '登录用户关联了多个员工'}
         if emp and emp.din_id:
-            url = self.env['ali.dindin.system.conf'].search([('key', '=', 'report_getunreadcount')]).value
-            token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
-            data = {
-                'userid': emp.din_id,
-            }
-            headers = {'Content-Type': 'application/json'}
             try:
-                result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=2)
-                result = json.loads(result.text)
+                client = get_client(self)
+                result = client.tbdingding.dingtalk_oapi_report_getunreadcount(emp.din_id)
+                logging.info(">>>查询员工未读日志数返回结果:{}".format(result))
                 if result.get('errcode') == 0:
                     return {'state': True, 'number': result.get('count')}
                 else:
                     return {'state': False, 'number': 0, 'msg': result.get('errmsg')}
-            except ReadTimeout:
-                return {'state': False, 'number': 0, 'msg': '网络连接超时'}
             except Exception as e:
                 return {'state': False, 'number': 0, 'msg': "网络连接失败"}
         else:
