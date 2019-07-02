@@ -74,7 +74,6 @@ class ResPartner(models.Model):
             except Exception as e:
                 raise UserError(e)
 
-    # TODO 共享范围与共享员工无法同步到钉钉，同步时会报错
     @api.multi
     def update_ding_partner(self):
         """修改联系人时同步至钉钉"""
@@ -92,7 +91,7 @@ class ResPartner(models.Model):
             data = {
                 'user_id': res.din_userid,  # 联系人钉钉id
                 'name': res.name,  # 联系人名称
-                'follower_userid': res.din_employee_id.din_id,  # 负责人userid
+                'follower_user_id': res.din_employee_id.din_id,  # 负责人userid
                 'label_ids': label_list,  # 标签列表
                 'title': res.function if res.function else '',  # 职位
                 'address': res.street if res.street else '',  # 地址
@@ -109,7 +108,8 @@ class ResPartner(models.Model):
             logging.info("data返回结果:{}".format(data))
             try:
                 client = get_client(self)
-                client.tbdingding.dingtalk_corp_ext_update(data)
+                result = client.tbdingding.dingtalk_corp_ext_update(data)
+                logging.info("更新联系人返回结果:{}".format(result))
             except Exception as e:
                 raise UserError(e)
 
@@ -133,7 +133,6 @@ class ResPartner(models.Model):
         except Exception as e:
             raise UserError(e)
 
-
     @api.multi
     def get_dingding_partner(self):
         """
@@ -143,18 +142,18 @@ class ResPartner(models.Model):
         返回数据结构：
         {'ding_open_errcode': 0, 
         'result': {
-            'address': '新世纪大厦', 
-            'company_name': '新时代电脑', 
-            'follower_user_id': '01454209426971', 
-            'label_ids': {'number': [136234018, 136234017, 136234029]}, 
-            'mobile': '1896889****', 
+            'address': 'xxxx', 
+            'company_name': 'xxxx', 
+            'follower_user_id': '01454209', 
+            'label_ids': {'number': [1362340, 1362317, 136229]}, 
+            'mobile': '189****', 
             'name': '曾**', 
-            'remark': '电脑维保', 
+            'remark': '电xxxx', 
             'share_dept_ids': {'number': [108280604]}, 
             'share_user_ids': {}, 
             'state_code': '86', 
             'title': '总经理', 
-            'userid': '014711380725999389'}, 
+            'userid': '014711'}, 
         'success': True}
 
         """
