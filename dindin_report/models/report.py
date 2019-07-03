@@ -234,9 +234,6 @@ class GetUserDingDingReportList(models.TransientModel):
             group = self.env.user.has_group('dindin_report.dd_get_user_report_list')
             if not group:
                 raise UserError("不好意思，你没有权限进行本操作！")
-            url = self.env['ali.dindin.system.conf'].search([('key', '=', 'report_list')]).value
-            # token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
-            token = get_client(self).get_access_token().get('access_token')
             cursor = 0
             size = 20
             while True:
@@ -250,10 +247,16 @@ class GetUserDingDingReportList(models.TransientModel):
                     data.update({'userid': res.employee_id.din_id})
                 if res.report_type:
                     data.update({'template_name': res.report_type.name})
-                headers = {'Content-Type': 'application/json'}
                 try:
-                    result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=5)
-                    result = json.loads(result.text)
+                    client = get_client(self)
+                    result = client.tbdingding.dingtalk_corp_report_list(
+                        start_time = data.get('start_time'),
+                        end_time = data.get('end_time'),
+                        cursor = data.get('cursor'),
+                        size = data.get('size'),
+                        template_name = data.get('template_name') if res.report_type else '',
+                        userid= data.get('userid') if res.employee_id else '')
+                    logging.info(">>>获取日志列表返回结果:{}".format(result))
                     if result.get('errcode') == 0:
                         logging.info(result)
                         d_res = result.get('result')
@@ -290,8 +293,8 @@ class GetUserDingDingReportList(models.TransientModel):
                             break
                     else:
                         raise UserError('获取日志列表失败，详情为:{}'.format(result.get('errmsg')))
-                except ReadTimeout:
-                    raise UserError("网络连接超时！")
+                except Exception as e:
+                    raise UserError(e)
         action = self.env.ref('dindin_report.dingding_report_user_action').read()[0]
         return action
 
