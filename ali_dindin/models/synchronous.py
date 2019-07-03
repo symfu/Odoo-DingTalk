@@ -63,13 +63,12 @@ class DingDingSynchronous(models.TransientModel):
                     h_department.sudo().write(data)
                 else:
                     dep = client.department.get(res.get('id'))
-                    if dep.get('deptHiding'):
-                        if self.env['ir.config_parameter'].sudo().get_param('din_unsynchronized_hidden_departments'): 
-                            logging.info("未同步隐藏部门")
-                        else:
-                            self.env['hr.department'].create(data)
-                    else:
+                    if not dep.get('deptHiding'):
                         self.env['hr.department'].create(data)
+                    else:
+                        if not self.env['ir.config_parameter'].sudo().get_param('din_unsynchronized_hidden_departments'): 
+                            self.env['hr.department'].create(data)
+                        
             return True
         except Exception as e:
             raise UserError(e)
