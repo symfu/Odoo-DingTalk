@@ -31,43 +31,62 @@ class ResPartner(models.Model):
 
     @api.multi
     def create_ding_partner(self):
+        """
+        添加外部联系人
+
+        :param name: 名称
+        :param follower_user_id: 负责人userId
+        :param state_code: 手机号国家码
+        :param mobile: 手机号
+        :param label_ids: 标签列表
+        :param title: 职位
+        :param share_dept_ids: 共享给的部门ID
+        :param remark: 备注
+        :param address: 地址
+        :param company_name: 企业名
+        :param share_user_ids: 共享给的员工userId列表
+        :return:
+        """
         for res in self:
             if res.din_userid:
                 raise UserError('钉钉中已存在该联系人,请不要重复上传或使用更新联系人功能！')
             # 获取标签
-            label_list = list()
+            label_ids = list()
             if res.category_id:
                 for category in res.category_id:
-                    label_list.append(category.din_id)
-                label_list = list(map(int, label_list))
+                    label_ids.append(category.din_id)
+                label_ids = list(map(int, label_ids))
             else:
                 raise UserError('请选择联系人标签，若不存在标签，请先使用手动同步联系人标签功能！')
             if not res.din_employee_id:
                 raise UserError("请选择联系人对应的负责人!")
-            data = {
-                'name': res.name,  # 联系人名称
-                'title': res.function if res.function else '',  # 职位
-                'label_ids': label_list,  # 标签列表
-                'address': res.street if res.street else '',  # 地址
-                'remark': res.comment if res.comment else '',  # 备注
-                'follower_user_id': res.din_employee_id.din_id,  # 负责人userid
-                'state_code': '86',  # 手机号国家码
-                'company_name': res.din_company_name if res.din_company_name else '',  # 钉钉企业公司名称
-                'mobile': res.mobile if res.mobile else res.phone,  # 手机
-            }
+
+            name = res.name  # 联系人名称
+            title = res.function if res.function else ''  # 职位
+            address = res.street if res.street else ''  # 地址
+            remark = res.comment if res.comment else ''  # 备注
+            follower_user_id = res.din_employee_id.din_id  # 负责人userid
+            state_code ='86'  # 手机号国家码
+            company_name = res.din_company_name if res.din_company_name else ''  # 钉钉企业公司名称
+            mobile = res.mobile if res.mobile else res.phone  # 手机
+
             share_deptlist = list()
             if res.din_share_department_ids:
                 share_deptlist = res.din_share_department_ids.mapped('din_id')
                 share_deptlist = list(map(int, share_deptlist))
-            data.update({'share_dept_ids': share_deptlist})
+            share_dept_ids = share_deptlist
             share_emplist = list()
             if res.din_share_employee_ids:
                 share_emplist = res.din_share_employee_ids.mapped('din_id')
-            data.update({'share_user_ids': share_emplist})
-            logging.info("data返回结果:{}".format(data))
+            share_user_ids = share_emplist
+
             try:
                 client = get_client(self)
-                result = client.tbdingding.dingtalk_corp_extcontact_create(data)
+                result = client.extcontact.create(name, follower_user_id, label_ids, mobile,state_code,
+                    title=title, share_dept_ids=share_dept_ids, remark=remark, address=address, 
+                    company_name=company_name, 
+                    share_user_ids=share_user_ids
+                )
                 logging.info("创建联系人返回结果:{}".format(result))
                 res.write({'din_userid': result})
                 res.message_post(body=u"钉钉消息：联系人信息已上传至钉钉", message_type='notification')
@@ -76,7 +95,23 @@ class ResPartner(models.Model):
 
     @api.multi
     def update_ding_partner(self):
-        """修改联系人时同步至钉钉"""
+        """
+        更新外部联系人
+
+        :param user_id: 该外部联系人的userId
+        :param name: 名称
+        :param follower_user_id: 负责人userId
+        :param state_code: 手机号国家码
+        :param mobile: 手机号
+        :param label_ids: 标签列表
+        :param title: 职位
+        :param share_dept_ids: 共享给的部门ID
+        :param remark: 备注
+        :param address: 地址
+        :param company_name: 企业名
+        :param share_user_ids: 共享给的员工userId列表
+        :return:
+        """
 
         for res in self:
             # 获取标签
@@ -88,27 +123,26 @@ class ResPartner(models.Model):
             else:
                 raise UserError('请选择联系人标签，若不存在标签，请先使用手动同步联系人标签功能！')
 
-            data = {
-                'user_id': res.din_userid,  # 联系人钉钉id
-                'name': res.name,  # 联系人名称
-                'follower_user_id': res.din_employee_id.din_id,  # 负责人userid
-                'label_ids': label_list,  # 标签列表
-                'title': res.function if res.function else '',  # 职位
-                'address': res.street if res.street else '',  # 地址
-                'remark': res.comment if res.comment else '',  # 备注
-                'company_name': res.din_company_name if res.din_company_name else '',  # 钉钉企业公司名称
-            }
+            user_id = res.din_userid  # 联系人钉钉id
+            name = res.name  # 联系人名称
+            follower_user_id = res.din_employee_id.din_id  # 负责人userid
+            label_ids = label_list  # 标签列表
+            mobile = res.mobile if res.mobile else res.phone  # 手机
+            title = res.function if res.function else ''  # 职位
+            address = res.street if res.street else ''  # 地址
+            remark = res.comment if res.comment else ''  # 备注
+            company_name = res.din_company_name if res.din_company_name else ''  # 钉钉企业公司名称
+
             share_deptlist = res.din_share_department_ids.mapped('din_id')
             share_deptlist = list(map(int, share_deptlist))
-            data.update({'share_dept_ids': share_deptlist if share_deptlist else []})
-
+            share_dept_ids = share_deptlist if share_deptlist else ()
             share_emplist = res.din_share_employee_ids.mapped('din_id')
-            data.update({'share_user_ids': share_emplist if share_emplist else []})
-            
-            logging.info("data返回结果:{}".format(data))
+            share_user_ids = share_emplist if share_emplist else ()
+
             try:
                 client = get_client(self)
-                result = client.tbdingding.dingtalk_corp_extcontact_update(data)
+                result = client.extcontact.update(user_id, name, follower_user_id, label_ids, mobile, state_code='86',
+                    title=title, share_dept_ids=share_dept_ids, remark=remark, address=address, company_name=company_name, share_user_ids=share_user_ids)
                 logging.info("更新联系人返回结果:{}".format(result))
                 res.message_post(body=u"钉钉消息：联系人信息已更新至钉钉", message_type='notification')
             except Exception as e:
@@ -129,7 +163,7 @@ class ResPartner(models.Model):
         """删除钉钉联系人"""
         try:
             client = get_client(self)
-            result = client.tbdingding.dingtalk_corp_extcontact_delete(din_userid)
+            result = client.extcontact.delete(din_userid)
             logging.info("删除钉钉联系人结果:{}".format(result))
         except Exception as e:
             raise UserError(e)
@@ -162,7 +196,7 @@ class ResPartner(models.Model):
             userid = partner.din_userid
             try:
                 client = get_client(self)
-                result = client.tbdingding.dingtalk_corp_extcontact_get(userid)
+                result = client.extcontact.get(userid)
                 logging.info(">>>获取外部联系人返回结果:{}".format(result))
                 if result.get('ding_open_errcode') == 0:
                     result = result['result']
