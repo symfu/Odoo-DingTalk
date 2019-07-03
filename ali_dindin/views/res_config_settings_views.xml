@@ -257,6 +257,17 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="din_unsynchronized_hidden_departments"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="din_unsynchronized_hidden_departments"/>
+                                <div class="text-muted">
+                                    不同步钉钉通讯录中隐藏的部门
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <h2>钉钉-扫码登录参数设置</h2>
                     <div class="row mt16 o_settings_container">

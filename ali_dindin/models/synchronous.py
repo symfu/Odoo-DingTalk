@@ -31,6 +31,7 @@ class DingDingSynchronous(models.TransientModel):
         for res in self:
             if res.department:
                 self.synchronous_dingding_department()
+                self.synchronous_dingding_department()
             if res.employee:
                 self.synchronous_dingding_employee(s_avatar=res.employee_avatar)
             if res.partner:
@@ -61,7 +62,14 @@ class DingDingSynchronous(models.TransientModel):
                 if h_department:
                     h_department.sudo().write(data)
                 else:
-                    self.env['hr.department'].create(data)
+                    dep = client.department.get(res.get('id'))
+                    if dep.get('deptHiding'):
+                        if self.env['ir.config_parameter'].sudo().get_param('din_unsynchronized_hidden_departments'): 
+                            logging.info("未同步隐藏部门")
+                        else:
+                            self.env['hr.department'].create(data)
+                    else:
+                        self.env['hr.department'].create(data)
             return True
         except Exception as e:
             raise UserError(e)
