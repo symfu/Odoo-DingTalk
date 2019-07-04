@@ -46,30 +46,21 @@ class DingDingReportUser(models.Model):
         :return:
         """
         for res in self:
-            url = self.env['ali.dindin.system.conf'].search([('key', '=', 'report_statistics')]).value
-            # token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
-            token = get_client(self).get_access_token().get('access_token')
-            data = {
-                'report_id': res.report_id,
-            }
-            headers = {'Content-Type': 'application/json'}
+            report_id = res.report_id
             try:
-                result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=2)
-                result = json.loads(result.text)
+                client = get_client(self)
+                result = client.report.statistics(report_id)
                 logging.info(">>>获取日志统计数据返回结果{}".format(result))
-                if result.get('errcode') == 0:
-                    d_res = result.get('result')
-                    data = {
-                        'read_num': d_res.get('read_num'),
-                        'comment_num': d_res.get('comment_num'),
-                        'comment_user_num': d_res.get('comment_user_num'),
-                        'like_num': d_res.get('like_num'),
-                    }
-                    res.write(data)
-                else:
-                    raise UserError('获取日志统计数据失败，详情为:{}'.format(result.get('errmsg')))
-            except ReadTimeout:
-                raise UserError("网络连接超时！")
+                d_res = result
+                data = {
+                    'read_num': d_res.get('read_num'),
+                    'comment_num': d_res.get('comment_num'),
+                    'comment_user_num': d_res.get('comment_user_num'),
+                    'like_num': d_res.get('like_num'),
+                }
+                res.write(data)
+            except Exception as e:
+                raise UserError(e)
             # 获取日志相关人员列表
             self.get_report_receivers(res)
             # 获取日志接收人列表
@@ -80,89 +71,68 @@ class DingDingReportUser(models.Model):
     @api.model
     def get_report_receivers(self, res):
         """
-        获取获取已读人员he 点赞人员列表
+        获取获取已读人员与点赞人员列表
         :param res:
         :return:
         """
-        url = self.env['ali.dindin.system.conf'].search([('key', '=', 'report_statistics_listbytype')]).value
-        # token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
-        token = get_client(self).get_access_token().get('access_token')
         # 获取已读人员
-        data = {
-            'report_id': res.report_id,
-            'type': 0,
-            'offset': 0,
-            'size': 100,
-        }
-        headers = {'Content-Type': 'application/json'}
+        report_id = res.report_id
+        _type = 0
         try:
-            result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=3)
-            result = json.loads(result.text)
-            if result.get('errcode') == 0:
-                d_res = result.get('result')
+            client = get_client(self)
+            result = client.report.statistics_listbytype(report_id, _type, offset=0, size=100)
+            logging.info(">>>获取已读人员列表返回结果{}".format(result))
+            d_res = result.get('userid_list')
+            if d_res:
                 people_read_list = list()
-                for user_id in d_res.get('userid_list'):
+                for user_id in d_res.get('string'):
                     emp = self.env['hr.employee'].search([('din_id', '=', user_id)])
                     if emp:
                         people_read_list.append(emp.id)
                 res.write({'people_read_list': [(6, 0, people_read_list)]})
-            else:
-                raise UserError('获取日志相关人员列表失败，详情为:{}'.format(result.get('errmsg')))
-        except ReadTimeout:
-            raise UserError("网络连接超时！")
+        except Exception as e:
+            raise UserError(e)
         # 获取点赞人员
-        data = {
-            'report_id': res.report_id,
-            'type': 2,
-            'offset': 0,
-            'size': 100,
-        }
+        report_id = res.report_id
+        _type = 2
         try:
-            result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=3)
-            result = json.loads(result.text)
-            if result.get('errcode') == 0:
-                d_res = result.get('result')
+            client = get_client(self)
+            result = client.report.statistics_listbytype(report_id, _type, offset=0, size=100)            
+            logging.info(">>>获取点赞人员列表返回结果{}".format(result))
+            d_res = result.get('userid_list')
+            if d_res:
                 people_like_list = list()
-                for user_id in d_res.get('userid_list'):
+                for user_id in d_res.get('string'):
                     emp = self.env['hr.employee'].search([('din_id', '=', user_id)])
                     if emp:
                         people_like_list.append(emp.id)
                 res.write({'people_like_list': [(6, 0, people_like_list)]})
-            else:
-                raise UserError('获取日志相关人员列表失败，详情为:{}'.format(result.get('errmsg')))
-        except ReadTimeout:
-            raise UserError("网络连接超时！")
+        except Exception as e:
+            raise UserError(e)
         return True
 
     @api.model
     def get_report_receives(self, res):
         """
-        获取日志接收人列表
+        获取日志接收人（分享人）列表
         :param res:
         :return:
         """
-        url = self.env['ali.dindin.system.conf'].search([('key', '=', 'report_receiver_list')]).value
-        # token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
-        token = get_client(self).get_access_token().get('access_token')
-        data = {
-            'report_id': res.report_id,
-        }
-        headers = {'Content-Type': 'application/json'}
+        report_id = res.report_id
         try:
-            result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=3)
-            result = json.loads(result.text)
-            if result.get('errcode') == 0:
-                d_res = result.get('result')
+            client = get_client(self)
+            result = client.report.receiver_list(report_id, offset=0, size=100)  
+            logging.info(">>>获取分享人员列表返回结果{}".format(result))
+            d_res = result.get('userid_list')
+            if d_res:
                 people_receive_list = list()
-                for user_id in d_res.get('userid_list'):
+                for user_id in d_res.get('string'):
                     emp = self.env['hr.employee'].search([('din_id', '=', user_id)])
                     if emp:
                         people_receive_list.append(emp.id)
                 res.write({'people_receive_list': [(6, 0, people_receive_list)]})
-            else:
-                raise UserError('获取日志接收人列表数据失败，详情为:{}'.format(result.get('errmsg')))
-        except ReadTimeout:
-            raise UserError("网络连接超时！")
+        except Exception as e:
+            raise UserError(e)
         return True
 
     @api.model
@@ -172,20 +142,15 @@ class DingDingReportUser(models.Model):
         :param res:
         :return:
         """
-        url = self.env['ali.dindin.system.conf'].search([('key', '=', 'report_comment_list')]).value
-        # token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
-        token = get_client(self).get_access_token().get('access_token')
-        data = {
-            'report_id': self.report_id,
-        }
-        headers = {'Content-Type': 'application/json'}
+        report_id = res.report_id
         try:
-            result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data), timeout=3)
-            result = json.loads(result.text)
-            if result.get('errcode') == 0:
-                d_res = result.get('result')
+            client = get_client(self)
+            result = client.report.comment_list(report_id, offset=0, size=20)  
+            logging.info(">>>获取日志评论详情返回结果{}".format(result))
+            d_res = result.get('comments')
+            if d_res:
                 comment_list = list()
-                for comment in d_res.get('comments'):
+                for comment in d_res.get('report_comment_vo'):
                     emp = self.env['hr.employee'].sudo().search([('din_id', '=', comment.get('userid'))])
                     if emp:
                         comment_list.append((0, 0, {
@@ -196,10 +161,8 @@ class DingDingReportUser(models.Model):
                         }))
                 res.comment_ids = False
                 res.write({'comment_ids': comment_list})
-            else:
-                raise UserError('获取日志评论数据失败，详情为:{}'.format(result.get('errmsg')))
-        except ReadTimeout:
-            raise UserError("网络连接超时！")
+        except Exception as e:
+            raise UserError(e)
         return True
 
 
@@ -227,8 +190,14 @@ class GetUserDingDingReportList(models.TransientModel):
     @api.multi
     def get_report_by_user(self):
         """
-        拉取员工日志列表
-        :return:
+        查询企业员工发出的日志列表
+
+        :param start_time: 查询起始时间
+        :param end_time: 查询截止时间
+        :param cursor: 查询游标，初始传入0，后续从上一次的返回值中获取
+        :param size: 每页数据量
+        :param template_name: 要查询的模板名称（可选）
+        :param userid: 员工的userid（可选）
         """
         for res in self:
             group = self.env.user.has_group('dindin_report.dd_get_user_report_list')
@@ -237,62 +206,48 @@ class GetUserDingDingReportList(models.TransientModel):
             cursor = 0
             size = 20
             while True:
-                data = {
-                    'start_time': int(time.mktime(self.start_time.timetuple()) * 1000),
-                    'end_time': int(time.mktime(self.end_time.timetuple()) * 1000),
-                    'cursor': cursor,
-                    'size': size,
-                }
-                if res.employee_id:
-                    data.update({'userid': res.employee_id.din_id})
-                if res.report_type:
-                    data.update({'template_name': res.report_type.name})
+                start_time = self.start_time
+                end_time = self.end_time
+                cursor = cursor
+                size = size
+                userid = res.employee_id.din_id if res.employee_id else ''
+                template_name = res.report_type.name if res.report_type else ''
                 try:
                     client = get_client(self)
-                    result = client.tbdingding.dingtalk_corp_report_list(
-                        start_time = data.get('start_time'),
-                        end_time = data.get('end_time'),
-                        cursor = data.get('cursor'),
-                        size = data.get('size'),
-                        template_name = data.get('template_name') if res.report_type else '',
-                        userid= data.get('userid') if res.employee_id else '')
+                    result = client.report.list(start_time, end_time, cursor=cursor, size=size, template_name=template_name, userid=userid)
                     logging.info(">>>获取日志列表返回结果:{}".format(result))
-                    if result.get('errcode') == 0:
-                        logging.info(result)
-                        d_res = result.get('result')
-                        for data_list in d_res.get('data_list'):
-                            emp = self.env['hr.employee'].search([('name', '=', data_list.get('creator_name'))])
-                            template = self.env['dingding.report.template'].search([('name', '=', data_list.get('template_name'))])
-                            data = {
-                                'name': data_list.get('template_name'),
-                                'report_type': template[0].id if template else False,
-                                'remark': data_list.get('remark'),
-                                'report_id': data_list.get('report_id'),
-                                'department_id': emp[0].department_id.id if emp and emp.department_id else False,
-                                'employee_id': emp[0].id if emp else False,
-                                'report_date': self.get_time_stamp(data_list.get('create_time')),
-                            }
-                            report_list = list()
-                            for content in data_list.get('contents'):
-                                report_list.append((0, 0, {
-                                    'sequence': int(content.get('sort')),
-                                    'title': content.get('key'),
-                                    'content': content.get('value'),
-                                }))
-                            data.update({'line_ids': report_list})
-                            report = self.env['dingding.report.user'].search([('report_id', '=', data_list.get('report_id'))])
-                            if report:
-                                report.line_ids = False
-                                report.write(data)
-                            else:
-                                self.env['dingding.report.user'].create(data)
-                        if d_res.get('has_more'):
-                            cursor = d_res.get('next_cursor')
-                            size = 20
+                    d_res = result.get('data_list')
+                    for data_list in d_res['report_oapi_vo']:
+                        emp = self.env['hr.employee'].search([('name', '=', data_list.get('creator_name'))])
+                        template = self.env['dingding.report.template'].search([('name', '=', data_list.get('template_name'))])
+                        data = {
+                            'name': data_list.get('template_name'),
+                            'report_type': template[0].id if template else False,
+                            'remark': data_list.get('remark'),
+                            'report_id': data_list.get('report_id'),
+                            'department_id': emp[0].department_id.id if emp and emp.department_id else False,
+                            'employee_id': emp[0].id if emp else False,
+                            'report_date': self.get_time_stamp(data_list.get('create_time')),
+                        }
+                        report_list = list()
+                        for content in data_list['contents']['json_object']:
+                            report_list.append((0, 0, {
+                                'sequence': int(content.get('sort')),
+                                'title': content.get('key'),
+                                'content': content.get('value'),
+                            }))
+                        data.update({'line_ids': report_list})
+                        report = self.env['dingding.report.user'].search([('report_id', '=', data_list.get('report_id'))])
+                        if report:
+                            report.line_ids = False
+                            report.write(data)
                         else:
-                            break
+                            self.env['dingding.report.user'].create(data)
+                    if d_res.get('has_more'):
+                        cursor = d_res.get('next_cursor')
+                        size = 20
                     else:
-                        raise UserError('获取日志列表失败，详情为:{}'.format(result.get('errmsg')))
+                        break
                 except Exception as e:
                     raise UserError(e)
         action = self.env.ref('dindin_report.dingding_report_user_action').read()[0]

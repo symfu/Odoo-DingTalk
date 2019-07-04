@@ -75,34 +75,30 @@ class DinDinSimpleGroups(models.Model):
     @api.model
     def get_sim_emps(self):
         """
-        获取考勤组成员
+        获取用户考勤组
+
+        :param userid: 员工在企业内的UserID，企业用来唯一标识用户的字段。
         :return:
         """
         emps = self.env['hr.employee'].sudo().search([('din_id', '!=', '')])
-        url = self.env['ali.dindin.system.conf'].search([('key', '=', 'a_getusergroup')]).value
-        headers = {'Content-Type': 'application/json'}
         for emp in emps:
-            data = {
-                'userid': emp.din_id
-            }
-            token = self.env['ali.dindin.system.conf'].search([('key', '=', 'token')]).value
+            userid = emp.din_id
             try:
-                result = requests.post(url="{}{}".format(url, token), headers=headers, data=json.dumps(data),
-                                       timeout=10)
-                result = json.loads(result.text)
-                logging.info(result)
-                if result.get('errcode') == 0:
+                client = get_client(self)
+                result = client.attendance.getusergroup(userid)
+                logging.info(">>>获取考勤组成员返回结果{}".format(result))
+                if result.get('ding_open_errcode') == 0:
                     res = result.get('result')
                     groups = self.env['dindin.simple.groups'].sudo().search([('group_id', '=', res.get('group_id'))])
                     if groups:
                         self._cr.execute(
                             """UPDATE hr_employee SET din_group_id = {} WHERE id = {}""".format(groups[0].id, emp.id))
                     else:
-                        return {'state': False, 'msg': '考勤组有更新,请先拉取最新的考勤组!'}
+                        pass
                 else:
                     return {'state': False, 'msg': '请求失败,原因为:{}'.format(result.get('errmsg'))}
-            except ReadTimeout:
-                return {'state': False, 'msg': '网络连接超时!'}
+            except Exception as e:
+                raise UserError(e)
         return {'state': True, 'msg': '执行成功!'}
 
 

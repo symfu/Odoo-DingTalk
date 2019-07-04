@@ -37,7 +37,7 @@ class DingDingReportTemplate(models.Model):
             raise UserError("不好意思，你没有权限进行本操作！")
         try:
             client = get_client(self)
-            result = client.tbdingding.dingtalk_oapi_report_template_listbyuserid()
+            result = client.report.template_listbyuserid()
             logging.info(">>>获取日志模板返回结果:{}".format(result))
             d_res = result['template_list']['report_template_top_vo']
             for report in d_res:
@@ -70,13 +70,13 @@ class DingDingReportTemplate(models.Model):
         if emp and emp.din_id:
             try:
                 client = get_client(self)
-                result = client.tbdingding.dingtalk_oapi_report_getunreadcount(emp.din_id)
+                result = client.report.getunreadcount(emp.din_id)
                 logging.info(">>>查询员工未读日志数返回结果:{}".format(result))
                 if result.get('errcode') == 0:
                     return {'state': True, 'number': result.get('count')}
                 else:
                     return {'state': False, 'number': 0, 'msg': result.get('errmsg')}
             except Exception as e:
-                return {'state': False, 'number': 0, 'msg': "网络连接失败"}
+                return {'state': False, 'number': 0, 'msg': "网络连接失败，详情：{}".format(e)}
         else:
             return {'state': False, 'number': 0, 'msg': 'None'}
